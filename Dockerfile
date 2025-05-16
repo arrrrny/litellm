@@ -8,7 +8,6 @@ FROM $LITELLM_BUILD_IMAGE AS builder
 
 # Set the working directory to /app
 WORKDIR /app
-
 USER root
 
 # Install build dependencies
@@ -20,6 +19,8 @@ RUN pip install --upgrade pip && \
 
 # Copy the current directory contents into the container at /app
 COPY . .
+# Install package in editable mode so that source changes are picked up
+RUN pip install -e .
 
 # Build Admin UI
 RUN chmod +x docker/build_admin_ui.sh && ./docker/build_admin_ui.sh
@@ -32,6 +33,9 @@ RUN ls -1 dist/*.whl | head -1
 
 # Install the package
 RUN pip install dist/*.whl
+
+# Install httpx dependency required by GitHub Copilot integration
+RUN pip install httpx>=0.24.0
 
 # install dependencies as wheels
 RUN pip wheel --no-cache-dir --wheel-dir=/wheels/ -r requirements.txt
@@ -65,6 +69,9 @@ COPY --from=builder /wheels/ /wheels/
 # Install the built wheel using pip; again using a wildcard if it's the only file
 RUN pip install *.whl /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl && rm -rf /wheels
 
+# Create GitHub Copilot token directory
+RUN mkdir -p /root/.config/litellm/github_copilot
+
 # Generate prisma client
 RUN prisma generate
 RUN chmod +x docker/entrypoint.sh
@@ -74,5 +81,5 @@ EXPOSE 4000/tcp
 
 ENTRYPOINT ["docker/prod_entrypoint.sh"]
 
-# Append "--detailed_debug" to the end of CMD to view detailed debug logs 
+# Append "--detailed_debug" to the end of CMD to view detailed debug logs
 CMD ["--port", "4000"]
