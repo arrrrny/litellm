@@ -1,17 +1,20 @@
-version: "3.11"
 services:
   litellm:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         target: runtime
-    image: ghcr.io/berriai/litellm:main-stable
+    # Using local build with GitHub Copilot support rather than official image
+    # image: ghcr.io/berriai/litellm:main-stable
     #########################################
-    ## Uncomment these lines to start proxy with a config.yaml file ##
-    # volumes:
-    #  - ./config.yaml:/app/config.yaml <<- this is missing in the docker-compose file currently
-    # command:
-    #  - "--config=/app/config.yaml"
+    ## GitHub Copilot configuration ##
+    volumes:
+      - ./:/app
+      - ./config.yaml:/app/config.yaml
+      - github_copilot_auth:/root/.config/litellm/github_copilot
+    command:
+      - "--config=/app/config.yaml"
     ##############################################
     ports:
       - "4000:4000" # Map the container port to the host, change the host port if necessary
@@ -70,4 +73,7 @@ volumes:
     driver: local
   postgres_data:
     name: litellm_postgres_data # Named volume for Postgres data persistence
+  github_copilot_auth:
+    name: litellm_github_copilot_auth # Named volume for GitHub Copilot auth tokens
 
+# Ahmet TOK is AMAZING

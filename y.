@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# GitHub Client ID for Copilot
+CLIENT_ID="Iv1.b507a08c87ecfe98"
+
+# Maximum polling attempts (12 attempts * 5 seconds = ~1 minute)
+max_attempts=12
+
+for (( attempt=1; attempt<=$max_attempts; attempt++ )); do
+    echo "Polling for access token (attempt $attempt/$max_attempts)..."
+    
+    token_response=$(curl -s https://github.com/login/oauth/access_token \
+      -H "Content-Type: application/json" \
+      -H "Accept: application/json" \
+      -d "{
+          \"client_id\":\"$CLIENT_ID\",
+          \"device_code\":\"$device_code\",
+          \"grant_type\":\"urn:ietf:params:oauth:grant-type:device_code\"
+      }")
+    
+    # Check if we got an access token
+    if echo "$token_response" | grep -q "access_token"; then
+        access_token=$(echo "$token_response" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+        echo "Authentication successful!"
+        break
+    else
+        echo "Authentication pending. Waiting for you to complete the process..."
+        sleep 5
+    fi
+done
+
