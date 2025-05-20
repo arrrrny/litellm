@@ -28,17 +28,18 @@ echo "Press Ctrl+C now to cancel, or wait 5 seconds to continue..."
 
 sleep 5
 
-# Stop and remove existing containers
+# Stop and remove existing containers (without removing volumes)
 section "Stopping and removing existing containers"
-docker-compose down -v || echo "No containers running or error stopping them."
+docker-compose down || echo "No containers running or error stopping them."
 
-# Cleanup unused volumes & images
+# Cleanup unused volumes & images (preserving GitHub Copilot auth)
 section "Cleaning up Docker environment"
-echo "Pruning unused volumes..."
-docker volume prune -f
-
-echo "Removing litellm_github_copilot_auth volume if it exists..."
-docker volume rm litellm_github_copilot_auth 2>/dev/null || true
+echo "Removing all volumes except GitHub Copilot auth..."
+# Get all volumes except github_copilot_auth and remove them
+for volume in $(docker volume ls -q | grep -v "litellm_github_copilot_auth"); do
+  echo "Removing volume: $volume"
+  docker volume rm $volume 2>/dev/null || true
+done
 
 # Verify source code
 section "Verifying source code structure"
@@ -72,7 +73,7 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   else
     echo "Waiting for LiteLLM to start (attempt $((RETRY_COUNT+1))/$MAX_RETRIES)..."
     RETRY_COUNT=$((RETRY_COUNT+1))
-    sleep 5
+    sleep 20
   fi
 done
 

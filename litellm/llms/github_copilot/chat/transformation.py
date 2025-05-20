@@ -1,17 +1,16 @@
 from typing import Optional, Tuple, List, Union, AsyncIterator, Iterator, Any, Dict
-import time
 import json
 import httpx
 
 from litellm.llms.openai.openai import OpenAIConfig
-from litellm.utils import ModelResponse, Message, Choices, StreamingChoices
+from litellm.utils import ModelResponse, Choices, StreamingChoices, Delta # Added Delta
 from litellm.llms.base_llm.base_model_iterator import BaseModelResponseIterator
 from litellm.llms.base_llm.chat.transformation import BaseLLMException, LiteLLMLoggingObj
 from litellm.types.utils import (
     ChatCompletionToolCallChunk,
     ChatCompletionUsageBlock,
     GenericStreamingChunk,
-    Usage,
+    # Usage, # Removed Usage as it's unused
 )
 from litellm.types.llms.openai import AllMessageValues
 
@@ -93,21 +92,31 @@ class GithubCopilotConfig(OpenAIConfig):
 
         # Post-process for Claude model tool_calls
         if isinstance(final_response, ModelResponse) and final_response.model and "claude" in final_response.model.lower():
-            # Non-streaming
-            if all(isinstance(c, Choices) for c in final_response.choices) and len(final_response.choices) >= 2:
-                first, second = final_response.choices[0], final_response.choices[1]
-                if hasattr(second.message, "tool_calls") and second.message.tool_calls:
-                    setattr(first.message, "tool_calls", second.message.tool_calls)
-                    final_response.choices = [first]
-            # Streaming
-            elif all(isinstance(c, StreamingChoices) for c in final_response.choices) and len(final_response.choices) >= 2:
-                first, second = final_response.choices[0], final_response.choices[1]
-                if hasattr(second.delta, "tool_calls") and second.delta.tool_calls:
-                    if not hasattr(first, "delta") or first.delta is None:
-                        setattr(first, "delta", Message())
-                    setattr(first.delta, "tool_calls", second.delta.tool_calls)
-                    final_response.choices = [first]
+            choices_list = final_response.choices
+            if choices_list and len(choices_list) >= 2:
+                first_choice_obj = choices_list[0]
+                second_choice_obj = choices_list[1]
 
+                # Non-streaming
+                if all(isinstance(c, Choices) for c in choices_list):
+                    # Add explicit isinstance checks for the specific elements being accessed to help linter
+                    if isinstance(first_choice_obj, Choices) and isinstance(second_choice_obj, Choices):
+                        if hasattr(second_choice_obj.message, "tool_calls") and second_choice_obj.message.tool_calls:
+                            # Assuming first_choice_obj.message is always a Message object as per Choices definition
+                            setattr(first_choice_obj.message, "tool_calls", second_choice_obj.message.tool_calls)
+                            final_response.choices = [first_choice_obj]
+                # Streaming
+                elif all(isinstance(c, StreamingChoices) for c in choices_list):
+                     # Add explicit isinstance checks for the specific elements being accessed to help linter
+                    if isinstance(first_choice_obj, StreamingChoices) and isinstance(second_choice_obj, StreamingChoices):
+                        if hasattr(second_choice_obj.delta, "tool_calls") and second_choice_obj.delta.tool_calls:
+                            # Original defensive check for first_choice_obj.delta, with Message() -> Delta() fix
+                            if not hasattr(first_choice_obj, "delta") or first_choice_obj.delta is None:
+                                setattr(first_choice_obj, "delta", Delta()) # Corrected to Delta()
+
+                            # Now, first_choice_obj.delta is assumed to be a valid Delta object.
+                            setattr(first_choice_obj.delta, "tool_calls", second_choice_obj.delta.tool_calls)
+                            final_response.choices = [first_choice_obj]
         return final_response
 
     def get_error_class(
@@ -130,7 +139,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
             text = ""
             tool_use: Optional[ChatCompletionToolCallChunk] = None
             is_finished = False
-            finish_reason = None
+            finish_reason: Optional[str] = None
             usage: Optional[ChatCompletionUsageBlock] = None
             provider_specific_fields = None
             index = int(chunk.get("index", 0))
@@ -156,7 +165,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                 text=text,
                 tool_use=tool_use,
                 is_finished=is_finished,
-                finish_reason=finish_reason,
+                finish_reason=finish_reason if finish_reason is not None else "", # Ensure str is passed
                 usage=usage,
                 index=index,
                 provider_specific_fields=provider_specific_fields,
