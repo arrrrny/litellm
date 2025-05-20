@@ -1,0 +1,46 @@
+# Dev Dockerfile (litellm/Dockerfile.dev)
+FROM cgr.dev/chainguard/python:latest-dev AS builder
+
+# 1) switch to root so we can install system packages
+USER root
+WORKDIR /app
+
+# 2) Alpine deps for build
+RUN apk add --no-cache gcc python3-dev openssl-dev
+
+# 3) Python build tools
+RUN pip install --upgrade pip build
+
+# 4) Copy just the metadata first (speeds rebuilds)
+COPY pyproject.toml poetry.lock ./
+
+# 5) Install light dependencies so 'pip install -e' works later
+RUN pip install --no-build-isolation --no-deps .
+
+# 6) Copy the rest of your code
+COPY . .
+
+# 7) Build the UI & anything else
+RUN chmod +x docker/build_admin_ui.sh && ./docker/build_admin_ui.sh
+
+# 8) Now build the wheel (optional—we won’t even need it in dev)
+RUN python -m build --wheel
+
+##### Runtime image #####
+FROM cgr.dev/chainguard/python:latest-dev AS runtime
+WORKDIR /app
+USER root
+
+# 9) Copy in your wheels to satisfy deps (if you built any)
+COPY --from=builder /app/dist/*.whl .
+RUN pip install --no-cache *.whl || true
+
+# 10) Install in editable mode so host edits are picked up instantly
+RUN pip install --no-cache -e .
+
+# 11) Make entrypoint executable
+COPY docker/prod_entrypoint.sh /app/docker/prod_entrypoint.sh
+RUN chmod +x /app/docker/prod_entrypoint.sh
+
+ENTRYPOINT ["/app/docker/prod_entrypoint.sh"]
+CMD ["--port","4000"]

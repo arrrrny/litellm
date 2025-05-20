@@ -215,6 +215,7 @@ LITELLM_CHAT_PROVIDERS = [
     "databricks",
     "empower",
     "github",
+    "github_copilot", 
     "custom",
     "litellm_proxy",
     "hosted_vllm",
@@ -230,7 +231,7 @@ LITELLM_CHAT_PROVIDERS = [
 LITELLM_EMBEDDING_PROVIDERS_SUPPORTING_INPUT_ARRAY_OF_TOKENS = [
     "openai",
     "azure",
-    "hosted_vllm"
+    "hosted_vllm",
 ]
 
 
@@ -291,7 +292,7 @@ openai_compatible_endpoints: List = [
     "https://api.friendli.ai/serverless/v1",
     "api.sambanova.ai/v1",
     "api.x.ai/v1",
-    "api.galadriel.ai/v1",
+    "api.galadriel.ai/v1"
     "api.llama.com/compat/v1/",
     "api.featherless.ai/v1",
     "inference.api.nscale.com/v1",
@@ -320,6 +321,7 @@ openai_compatible_providers: List = [
     "friendliai",
     "azure_ai",
     "github",
+    "github_copilot",
     "litellm_proxy",
     "hosted_vllm",
     "llamafile",
