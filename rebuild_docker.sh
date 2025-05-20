@@ -21,7 +21,7 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # Start script
-section "ZikZak LiteLLM Docker Rebuild"
+section "GitHub Copilot LiteLLM Docker Rebuild"
 echo "This script will completely rebuild the LiteLLM Docker environment."
 echo "It will destroy all existing containers, volumes, and images related to LiteLLM."
 echo "Press Ctrl+C now to cancel, or wait 5 seconds to continue..."
@@ -94,7 +94,7 @@ echo "Access the proxy at: http://localhost:4000"
 echo "View logs with:      docker-compose logs -f"
 echo "Stop with:           docker-compose down"
 echo ""
-echo "To test ZikZak provider, try:"
+echo "To test GitHub Copilot, try:"
 echo "curl -X POST http://localhost:4000/chat/completions \\"
 echo "     -H \"Content-Type: application/json\" \\"
-echo "     -d '{\"model\": \"zikzak/z1\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello from ZikZak!\"}]}'"
+echo "     -d '{\"model\": \"github_copilot/gpt-4.1\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello from GitHub Copilot!\"}]}'"
