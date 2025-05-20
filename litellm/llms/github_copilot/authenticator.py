@@ -258,13 +258,21 @@ class Authenticator:
                     "error" in resp_json
                     and resp_json.get("error") == "authorization_pending"
                 ):
-                    verbose_logger.debug(
-                        f"Authorization pending (attempt {attempt+1}/{max_attempts})"
-                    )
+                    # Print more informative waiting message
+                    if attempt % 2 == 0:  # Only print every other attempt to reduce noise
+                        waiting_msg = f"Waiting for GitHub Copilot authorization (attempt {attempt+1}/{max_attempts})... Please visit the URL and enter the code."
+                        print(waiting_msg)
+                        verbose_logger.info(waiting_msg)
+                    else:
+                        verbose_logger.debug(
+                            f"Authorization pending (attempt {attempt+1}/{max_attempts})"
+                        )
                 else:
                     verbose_logger.warning(f"Unexpected response: {resp_json}")
             except httpx.HTTPStatusError as e:
-                verbose_logger.error(f"HTTP error polling for access token: {str(e)}")
+                error_msg = f"HTTP error polling for access token: {str(e)}"
+                verbose_logger.error(error_msg)
+                print(f"ERROR: {error_msg}")
                 raise GetAccessTokenError(f"Failed to get access token: {str(e)}")
             except json.JSONDecodeError as e:
                 verbose_logger.error(f"Error decoding JSON response: {str(e)}")
@@ -292,14 +300,36 @@ class Authenticator:
             GetDeviceCodeError: If unable to get a device code.
             GetAccessTokenError: If unable to get an access token.
         """
+        print("\n\nStarting GitHub Copilot authentication process...\n\n")
         device_code_info = self._get_device_code()
 
         device_code = device_code_info["device_code"]
         user_code = device_code_info["user_code"]
         verification_uri = device_code_info["verification_uri"]
+        
+        if "verification_uri_complete" in device_code_info:
+            print(f"\nAlternative direct URL: {device_code_info['verification_uri_complete']}\n")
 
-        print(
-            f"Please visit {verification_uri} and enter code {user_code} to authenticate."
-        )
+        # Print the authentication URL and code multiple times to ensure visibility in logs
+        auth_message = f"""
+        
+        =====================================================
+        GITHUB COPILOT AUTHENTICATION REQUIRED
+        =====================================================
+        
+        Please visit: {verification_uri}
+        
+        And enter code: {user_code}
+        
+        =====================================================
+        """
+        
+        print(auth_message)
+        verbose_logger.critical(auth_message)  # Log at critical level to ensure visibility
+        
+        # Also log to stderr for maximum visibility
+        import sys
+        sys.stderr.write(auth_message + "\n")
+        sys.stderr.flush()
 
         return self._poll_for_access_token(device_code)
