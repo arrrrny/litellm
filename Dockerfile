@@ -72,6 +72,10 @@ RUN pip install *.whl /wheels/* --no-index --find-links=/wheels/ && rm -f *.whl 
 # Create GitHub Copilot token directory
 RUN mkdir -p /root/.config/litellm/github_copilot
 
+# Create a symbolic link for ZikZak module to ensure it's found during imports
+RUN mkdir -p /app/litellm/llms && \
+    ln -sf /app/litellm/litellm/llms/zikzak /app/litellm/llms/zikzak
+
 # Generate prisma client
 RUN prisma generate
 RUN chmod +x docker/entrypoint.sh

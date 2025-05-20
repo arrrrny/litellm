@@ -15,6 +15,7 @@ services:
       - github_copilot_auth:/root/.config/litellm/github_copilot
     command:
       - "--config=/app/config.yaml"
+      - "--detailed_debug"
     ##############################################
     ports:
       - "4000:4000" # Map the container port to the host, change the host port if necessary
