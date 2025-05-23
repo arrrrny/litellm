@@ -36,10 +36,10 @@ docker-compose down || echo "No containers running or error stopping them."
 section "Cleaning up Docker environment"
 echo "Removing all volumes except GitHub Copilot auth..."
 # Get all volumes except github_copilot_auth and remove them
-for volume in $(docker volume ls -q | grep -v "litellm_github_copilot_auth"); do
-  echo "Removing volume: $volume"
-  docker volume rm $volume 2>/dev/null || true
-done
+# for volume in $(docker volume ls -q | grep -v "litellm_github_copilot_auth"); do
+#   echo "Removing volume: $volume"
+#   docker volume rm $volume 2>/dev/null || true
+# done
 
 # Verify source code
 section "Verifying source code structure"

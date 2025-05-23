@@ -3,21 +3,19 @@ import json
 import httpx
 
 from litellm.llms.openai.openai import OpenAIConfig
-from litellm.utils import ModelResponse, Choices, StreamingChoices, Delta # Added Delta
+from litellm.utils import ModelResponse, Choices, StreamingChoices
 from litellm.llms.base_llm.base_model_iterator import BaseModelResponseIterator
 from litellm.llms.base_llm.chat.transformation import BaseLLMException, LiteLLMLoggingObj
 from litellm.types.utils import (
     ChatCompletionToolCallChunk,
     ChatCompletionUsageBlock,
     GenericStreamingChunk,
-    # Usage, # Removed Usage as it's unused
 )
 from litellm.types.llms.openai import AllMessageValues
 
 from ..authenticator import Authenticator
 from ..constants import GetAPIKeyError
 from litellm.exceptions import AuthenticationError
-
 
 class GithubCopilotError(BaseLLMException):
     def __init__(self, status_code: int, message: str):
@@ -26,7 +24,6 @@ class GithubCopilotError(BaseLLMException):
         self.request = httpx.Request(method="POST", url="https://api.githubcopilot.com")
         self.response = httpx.Response(status_code=status_code, request=self.request)
         super().__init__(message=self.message, status_code=self.status_code, request=self.request, response=self.response)
-
 
 class GithubCopilotConfig(OpenAIConfig):
     def __init__(
@@ -90,33 +87,32 @@ class GithubCopilotConfig(OpenAIConfig):
             json_mode,
         )
 
-        # Post-process for Claude model tool_calls
-        if isinstance(final_response, ModelResponse) and final_response.model and "claude" in final_response.model.lower():
+        # Post-process for tool_calls
+        if isinstance(final_response, ModelResponse) and final_response.choices:
             choices_list = final_response.choices
-            if choices_list and len(choices_list) >= 2:
+            if len(choices_list) >= 2:
                 first_choice_obj = choices_list[0]
                 second_choice_obj = choices_list[1]
 
                 # Non-streaming
                 if all(isinstance(c, Choices) for c in choices_list):
-                    # Add explicit isinstance checks for the specific elements being accessed to help linter
-                    if isinstance(first_choice_obj, Choices) and isinstance(second_choice_obj, Choices):
-                        if hasattr(second_choice_obj.message, "tool_calls") and second_choice_obj.message.tool_calls:
-                            # Assuming first_choice_obj.message is always a Message object as per Choices definition
-                            setattr(first_choice_obj.message, "tool_calls", second_choice_obj.message.tool_calls)
-                            final_response.choices = [first_choice_obj]
+                    if hasattr(second_choice_obj.message, "tool_calls") and second_choice_obj.message.tool_calls:
+                        if not hasattr(first_choice_obj.message, "tool_calls") or first_choice_obj.message.tool_calls is None:
+                            setattr(first_choice_obj.message, "tool_calls", [])
+                        # Ensure first_choice_obj.message.tool_calls is a list before extending
+                        if isinstance(first_choice_obj.message.tool_calls, list):
+                            first_choice_obj.message.tool_calls.extend(second_choice_obj.message.tool_calls)
+                        final_response.choices = [first_choice_obj]
                 # Streaming
                 elif all(isinstance(c, StreamingChoices) for c in choices_list):
-                     # Add explicit isinstance checks for the specific elements being accessed to help linter
-                    if isinstance(first_choice_obj, StreamingChoices) and isinstance(second_choice_obj, StreamingChoices):
-                        if hasattr(second_choice_obj.delta, "tool_calls") and second_choice_obj.delta.tool_calls:
-                            # Original defensive check for first_choice_obj.delta, with Message() -> Delta() fix
-                            if not hasattr(first_choice_obj, "delta") or first_choice_obj.delta is None:
-                                setattr(first_choice_obj, "delta", Delta()) # Corrected to Delta()
+                    if hasattr(second_choice_obj.delta, "tool_calls") and second_choice_obj.delta.tool_calls:
+                        if not hasattr(first_choice_obj.delta, "tool_calls") or first_choice_obj.delta.tool_calls is None:
+                            setattr(first_choice_obj.delta, "tool_calls", [])
+                        # Ensure first_choice_obj.delta.tool_calls is a list before extending
+                        if isinstance(first_choice_obj.delta.tool_calls, list):
+                            first_choice_obj.delta.tool_calls.extend(second_choice_obj.delta.tool_calls)
+                        final_response.choices = [first_choice_obj]
 
-                            # Now, first_choice_obj.delta is assumed to be a valid Delta object.
-                            setattr(first_choice_obj.delta, "tool_calls", second_choice_obj.delta.tool_calls)
-                            final_response.choices = [first_choice_obj]
         return final_response
 
     def get_error_class(
@@ -131,7 +127,6 @@ class GithubCopilotConfig(OpenAIConfig):
         json_mode: Optional[bool] = False,
     ) -> BaseModelResponseIterator:
         return GithubCopilotResponseIterator(streaming_response=streaming_response, sync_stream=sync_stream, json_mode=json_mode)
-
 
 class GithubCopilotResponseIterator(BaseModelResponseIterator):
     def chunk_parser(self, chunk: dict) -> GenericStreamingChunk:
@@ -154,7 +149,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                     finish_reason = choice["finish_reason"]
                     is_finished = True
 
-            # Special Claude tool_calls in second choice
+            # Special handling for tool_calls in second choice
             if (
                 "choices" in chunk and len(chunk["choices"]) >= 2
                 and chunk["choices"][1].get("delta", {}).get("tool_calls")
@@ -165,7 +160,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                 text=text,
                 tool_use=tool_use,
                 is_finished=is_finished,
-                finish_reason=finish_reason if finish_reason is not None else "", # Ensure str is passed
+                finish_reason=finish_reason if finish_reason is not None else "",
                 usage=usage,
                 index=index,
                 provider_specific_fields=provider_specific_fields,

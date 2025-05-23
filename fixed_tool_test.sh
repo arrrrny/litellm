@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Your API key
-API_KEY="sk-7E1EbuNM42L0-TojVfMuzw"
+API_KEY="sk-PvLs-yca5KgZvlTneRzm7w"
 
 # Define the endpoint
 ENDPOINT="http://localhost:4000/v1/chat/completions"
