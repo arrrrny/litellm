@@ -167,37 +167,37 @@ analyze_tool_calls() {
     local response="$1"
     local model="$2"
     local provider=$(get_provider "$model")
-    
+
     log "Analyzing tool calls for $model ($provider):"
-    
+
     # Check if response has choices
     local choices_count=$(echo "$response" | jq '.choices | length' 2>/dev/null || echo "0")
     log "  Choices count: $choices_count"
-    
+
     # Analyze each choice
     for ((i=0; i<choices_count; i++)); do
         log "  Choice $i:"
-        
+
         # Check message structure
         local message=$(echo "$response" | jq -r ".choices[$i].message" 2>/dev/null)
         local role=$(echo "$message" | jq -r '.role' 2>/dev/null)
         local content=$(echo "$message" | jq -r '.content' 2>/dev/null)
         local tool_calls=$(echo "$message" | jq '.tool_calls' 2>/dev/null)
-        
+
         log "    Role: $role"
         log "    Content: ${content:0:100}..."
-        
+
         if [[ "$tool_calls" != "null" && "$tool_calls" != "" ]]; then
             local tool_count=$(echo "$tool_calls" | jq 'length' 2>/dev/null || echo "0")
             log "    Tool calls count: $tool_count"
-            
+
             for ((j=0; j<tool_count; j++)); do
                 local tool_call=$(echo "$tool_calls" | jq ".[$j]" 2>/dev/null)
                 local call_id=$(echo "$tool_call" | jq -r '.id' 2>/dev/null)
                 local call_type=$(echo "$tool_call" | jq -r '.type' 2>/dev/null)
                 local func_name=$(echo "$tool_call" | jq -r '.function.name' 2>/dev/null)
                 local func_args=$(echo "$tool_call" | jq -r '.function.arguments' 2>/dev/null)
-                
+
                 log "      Tool Call $j:"
                 log "        ID: $call_id"
                 log "        Type: $call_type"
@@ -207,7 +207,7 @@ analyze_tool_calls() {
         else
             log "    No tool calls found"
         fi
-        
+
         # Check finish reason
         local finish_reason=$(echo "$response" | jq -r ".choices[$i].finish_reason" 2>/dev/null)
         log "    Finish reason: $finish_reason"
@@ -218,7 +218,7 @@ analyze_tool_calls() {
 execute_tool() {
     local func_name="$1"
     local args="$2"
-    
+
     case "$func_name" in
         "get_weather_forecast")
             local city=$(echo "$args" | jq -r '.city' 2>/dev/null)
@@ -248,9 +248,9 @@ test_single_tool() {
     local tool="$3"
     local user_message="$4"
     local test_name="$5"
-    
+
     log "Testing single tool call: $test_name with $model_key"
-    
+
     # Initial request
     local payload=$(jq -cn \
         --arg m "$model" \
@@ -263,27 +263,28 @@ test_single_tool() {
                 {role:"user", content:$msg}
             ],
             tools: [$tool],
-            tool_choice: "auto"
+            tool_choice: "auto",
+            intent: true
         }'
     )
-    
+
     log "Sending initial request..."
     local response=$(curl -s "${HEADERS[@]}" -d "$payload" "$ENDPOINT")
     local response_file=$(save_response "$model_key" "initial_$test_name" "$response")
-    
+
     # Check for errors
     local error_msg=$(echo "$response" | jq -r '.error.message // empty' 2>/dev/null)
     if [[ -n "$error_msg" ]]; then
         error "API Error for $model_key: $error_msg"
         return 1
     fi
-    
+
     analyze_tool_calls "$response" "$model"
-    
+
     # Find tool calls in any choice
     local tool_call_choice=-1
     local choices_count=$(echo "$response" | jq '.choices | length' 2>/dev/null || echo "0")
-    
+
     for ((i=0; i<choices_count; i++)); do
         local has_tools=$(echo "$response" | jq -r ".choices[$i].message.tool_calls // empty" 2>/dev/null)
         if [[ -n "$has_tools" && "$has_tools" != "null" ]]; then
@@ -291,18 +292,18 @@ test_single_tool() {
             break
         fi
     done
-    
+
     if [[ $tool_call_choice -eq -1 ]]; then
         warning "No tool calls found in response for $model_key"
         return 1
     fi
-    
+
     # Extract tool call details
     local tool_call=$(echo "$response" | jq ".choices[$tool_call_choice].message.tool_calls[0]" 2>/dev/null)
     local call_id=$(echo "$tool_call" | jq -r '.id' 2>/dev/null)
     local func_name=$(echo "$tool_call" | jq -r '.function.name' 2>/dev/null)
     local func_args_str=$(echo "$tool_call" | jq -r '.function.arguments' 2>/dev/null)
-    
+
     # Parse arguments (handle both string and object formats)
     local func_args
     if echo "$func_args_str" | jq . >/dev/null 2>&1; then
@@ -310,10 +311,10 @@ test_single_tool() {
     else
         func_args=$(echo "$func_args_str" | jq -R . | jq fromjson 2>/dev/null || echo '{}')
     fi
-    
+
     log "Executing tool: $func_name with args: $func_args"
     local tool_result=$(execute_tool "$func_name" "$func_args")
-    
+
     # Follow-up request with tool result
     local followup_payload=$(jq -cn \
         --arg m "$model" \
@@ -334,21 +335,21 @@ test_single_tool() {
             tools: [$tool]
         }'
     )
-    
+
     log "Sending follow-up request with tool result..."
     local final_response=$(curl -s "${HEADERS[@]}" -d "$followup_payload" "$ENDPOINT")
     local final_file=$(save_response "$model_key" "final_$test_name" "$final_response")
-    
+
     # Check final response
     local final_error=$(echo "$final_response" | jq -r '.error.message // empty' 2>/dev/null)
     if [[ -n "$final_error" ]]; then
         error "Final API Error for $model_key: $final_error"
         return 1
     fi
-    
+
     local final_content=$(echo "$final_response" | jq -r '.choices[0].message.content // empty' 2>/dev/null)
     log "Final response content: ${final_content:0:200}..."
-    
+
     success "Completed tool call test for $model_key"
     return 0
 }
@@ -357,12 +358,12 @@ test_single_tool() {
 test_parallel_tools() {
     local model_key="$1"
     local model="$2"
-    
+
     log "Testing parallel tool calls with $model_key"
-    
+
     local tools="[$WEATHER_TOOL, $CALCULATOR_TOOL, $TIME_TOOL]"
     local user_message="What's the weather in Tokyo, what's 15 * 23, and what time is it in UTC?"
-    
+
     local payload=$(jq -cn \
         --arg m "$model" \
         --arg msg "$user_message" \
@@ -374,32 +375,33 @@ test_parallel_tools() {
                 {role:"user", content:$msg}
             ],
             tools: $tools,
-            tool_choice: "auto"
+            tool_choice: "auto",
+            intent: true
         }'
     )
-    
+
     local response=$(curl -s "${HEADERS[@]}" -d "$payload" "$ENDPOINT")
     local response_file=$(save_response "$model_key" "parallel" "$response")
-    
+
     local error_msg=$(echo "$response" | jq -r '.error.message // empty' 2>/dev/null)
     if [[ -n "$error_msg" ]]; then
         error "Parallel tools error for $model_key: $error_msg"
         return 1
     fi
-    
+
     analyze_tool_calls "$response" "$model"
-    
+
     # Count total tool calls across all choices
     local total_tools=0
     local choices_count=$(echo "$response" | jq '.choices | length' 2>/dev/null || echo "0")
-    
+
     for ((i=0; i<choices_count; i++)); do
         local choice_tools=$(echo "$response" | jq ".choices[$i].message.tool_calls // [] | length" 2>/dev/null || echo "0")
         total_tools=$((total_tools + choice_tools))
     done
-    
+
     log "Total tool calls found: $total_tools"
-    
+
     if [[ $total_tools -gt 1 ]]; then
         success "Parallel tool calls supported by $model_key"
     elif [[ $total_tools -eq 1 ]]; then
@@ -407,63 +409,63 @@ test_parallel_tools() {
     else
         warning "No tool calls found for $model_key"
     fi
-    
+
     return 0
 }
 
 # Generate summary report
 generate_report() {
     local report_file="$OUTPUT_DIR/tool_call_analysis_$TIMESTAMP.md"
-    
+
     cat > "$report_file" << 'EOF'
 # GitHub Copilot Tool Call Analysis Report
 
 ## Test Configuration
 EOF
-    
+
     echo "- Timestamp: $TIMESTAMP" >> "$report_file"
     echo "- Endpoint: $ENDPOINT" >> "$report_file"
     echo "- Output Directory: $OUTPUT_DIR" >> "$report_file"
     echo "" >> "$report_file"
-    
+
     echo "## Models Tested" >> "$report_file"
     echo "" >> "$report_file"
-    
+
     for i in "${!MODEL_KEYS[@]}"; do
         local model_key="${MODEL_KEYS[$i]}"
         local model_value="${MODEL_VALUES[$i]}"
         local provider=$(get_provider "$model_value")
         echo "- **$model_key** ($model_value) - Provider: $provider" >> "$report_file"
     done
-    
+
     echo "" >> "$report_file"
     echo "## Test Results Summary" >> "$report_file"
     echo "" >> "$report_file"
     echo "| Model | Provider | Single Tool | Parallel Tools | Weather | Calculator | Time |" >> "$report_file"
     echo "|-------|----------|-------------|----------------|---------|------------|------|" >> "$report_file"
-    
+
     for i in "${!MODEL_KEYS[@]}"; do
         local model_key="${MODEL_KEYS[$i]}"
         local model_value="${MODEL_VALUES[$i]}"
         local provider=$(get_provider "$model_value")
-        
+
         # Check if test files exist
         local weather_test="❌"
         local calc_test="❌"
         local time_test="❌"
         local parallel_test="❌"
-        
+
         [[ -f "$OUTPUT_DIR/${model_key}_final_weather_$TIMESTAMP.json" ]] && weather_test="✅"
         [[ -f "$OUTPUT_DIR/${model_key}_final_calculator_$TIMESTAMP.json" ]] && calc_test="✅"
         [[ -f "$OUTPUT_DIR/${model_key}_final_time_$TIMESTAMP.json" ]] && time_test="✅"
         [[ -f "$OUTPUT_DIR/${model_key}_parallel_$TIMESTAMP.json" ]] && parallel_test="✅"
-        
+
         local single_test="❌"
         [[ "$weather_test" == "✅" || "$calc_test" == "✅" || "$time_test" == "✅" ]] && single_test="✅"
-        
+
         echo "| $model_key | $provider | $single_test | $parallel_test | $weather_test | $calc_test | $time_test |" >> "$report_file"
     done
-    
+
     echo "" >> "$report_file"
     echo "## Detailed Analysis" >> "$report_file"
     echo "" >> "$report_file"
@@ -471,11 +473,11 @@ EOF
     echo "" >> "$report_file"
     echo "## Files Generated" >> "$report_file"
     echo "" >> "$report_file"
-    
+
     ls "$OUTPUT_DIR"/*_$TIMESTAMP.* | sort | while read file; do
         echo "- $(basename "$file")" >> "$report_file"
     done
-    
+
     success "Generated analysis report: $report_file"
 }
 
@@ -484,39 +486,39 @@ main() {
     log "Starting GitHub Copilot Tool Call Analysis"
     log "Testing ${#MODEL_KEYS[@]} models across multiple providers"
     log "Output directory: $OUTPUT_DIR"
-    
+
     # Test each model
     for i in "${!MODEL_KEYS[@]}"; do
         local model_key="${MODEL_KEYS[$i]}"
         local model="${MODEL_VALUES[$i]}"
         local provider=$(get_provider "$model")
-        
+
         log "=========================================="
         log "Testing model: $model_key ($model)"
         log "Provider: $provider"
         log "=========================================="
-        
+
         # Test different tool scenarios
         test_single_tool "$model_key" "$model" "$WEATHER_TOOL" "What's the weather in Paris?" "weather"
         sleep 2
-        
+
         test_single_tool "$model_key" "$model" "$CALCULATOR_TOOL" "What is 42 * 123?" "calculator"
         sleep 2
-        
+
         test_single_tool "$model_key" "$model" "$TIME_TOOL" "What time is it in New York?" "time"
         sleep 2
-        
+
         # Test parallel tools (if supported)
         test_parallel_tools "$model_key" "$model"
         sleep 3
-        
+
         log "Completed testing $model_key"
         log ""
     done
-    
+
     # Generate comprehensive report
     generate_report
-    
+
     success "Tool call analysis completed!"
     log "Check $OUTPUT_DIR for detailed results and analysis"
 }

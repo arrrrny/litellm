@@ -24,7 +24,7 @@ services:
       - .env.prod
     depends_on:
       - db
-      # - redis
+      - redis
     restart: unless-stopped
     healthcheck:
       test:
@@ -62,30 +62,30 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # redis:
-  #   image: redis:7-alpine
-  #   restart: unless-stopped
-  #   container_name: litellm_redis_prod
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis_data_prod:/data
-  #   command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   logging:
-  #     driver: "json-file"
-  #     options:
-  #       max-size: "10m"
-  #       max-file: "3"
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    container_name: litellm_redis_prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_prod:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data_prod:
     name: litellm_postgres_data_prod
-  # redis_data_prod:
-  #   name: litellm_redis_data_prod
+  redis_data_prod:
+    name: litellm_redis_data_prod
   github_copilot_auth:
     name: litellm_github_copilot_auth

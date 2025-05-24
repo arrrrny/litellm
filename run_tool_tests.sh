@@ -9,7 +9,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="${OUTPUT_DIR:-./tool_test_results}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-API_KEY="${API_KEY:-sk-QtvaA69MEXsO_OOeD6Sxlw}"
+API_KEY="${API_KEY:-sk-M1kLb3qpCSq52YEx9QQlrA}"
 ENDPOINT="${ENDPOINT:-http://localhost:4000/v1/chat/completions}"
 
 # Colors
@@ -38,19 +38,19 @@ warning() {
 # Check dependencies
 check_dependencies() {
     local missing=()
-    
+
     for cmd in curl jq bc python3; do
         if ! command -v "$cmd" &> /dev/null; then
             missing+=("$cmd")
         fi
     done
-    
+
     if [ ${#missing[@]} -ne 0 ]; then
         error "Missing required dependencies: ${missing[*]}"
         echo "Please install the missing commands and try again."
         exit 1
     fi
-    
+
     # Check Python modules
     if ! python3 -c "import json, glob, pathlib" 2>/dev/null; then
         error "Required Python modules not available"
@@ -61,9 +61,9 @@ check_dependencies() {
 # Test API connectivity
 test_api_connectivity() {
     log "Testing API connectivity..."
-    
+
     local test_payload='{"model":"github_copilot/gpt-4o","messages":[{"role":"user","content":"Hello"}],"max_tokens":10}'
-    
+
     local response=$(curl -s -w "%{http_code}" -o /tmp/api_test_$$.json \
         -H "Authorization: Bearer $API_KEY" \
         -H "Content-Type: application/json" \
@@ -73,9 +73,9 @@ test_api_connectivity() {
         -H "Copilot-Integration-Id: vscode-chat" \
         -d "$test_payload" \
         "$ENDPOINT")
-    
+
     local http_code="${response: -3}"
-    
+
     if [[ "$http_code" == "200" ]]; then
         success "API connectivity test passed"
         rm -f /tmp/api_test_$$.json
@@ -94,16 +94,16 @@ test_api_connectivity() {
 # Run tool call tests
 run_tool_tests() {
     log "Starting tool call tests..."
-    
+
     # Create output directory
     mkdir -p "$OUTPUT_DIR"
-    
+
     # Run the main test script
     export API_KEY="$API_KEY"
     export ENDPOINT="$ENDPOINT"
     export OUTPUT_DIR="$OUTPUT_DIR"
     export TIMESTAMP="$TIMESTAMP"
-    
+
     if [ -f "$SCRIPT_DIR/test_copilot.sh" ]; then
         log "Running comprehensive tool call tests..."
         if "$SCRIPT_DIR/test_copilot.sh"; then
@@ -122,22 +122,22 @@ run_tool_tests() {
 # Run analysis
 run_analysis() {
     log "Running tool call response analysis..."
-    
+
     if [ -f "$SCRIPT_DIR/analyze_tool_responses.py" ]; then
         local analysis_prefix="$OUTPUT_DIR/analysis_$TIMESTAMP"
-        
+
         if python3 "$SCRIPT_DIR/analyze_tool_responses.py" "$OUTPUT_DIR" -o "$analysis_prefix"; then
             success "Analysis completed successfully"
-            
+
             # Show summary
             if [ -f "${analysis_prefix}_report.md" ]; then
                 log "Analysis report generated: ${analysis_prefix}_report.md"
             fi
-            
+
             if [ -f "${analysis_prefix}_recommendations.py" ]; then
                 log "Code recommendations generated: ${analysis_prefix}_recommendations.py"
             fi
-            
+
             return 0
         else
             error "Analysis failed"
@@ -152,7 +152,7 @@ run_analysis() {
 # Generate summary
 generate_summary() {
     local summary_file="$OUTPUT_DIR/test_summary_$TIMESTAMP.txt"
-    
+
     cat > "$summary_file" << EOF
 GitHub Copilot Tool Call Test Summary
 =====================================
@@ -166,16 +166,16 @@ $(ls -la "$OUTPUT_DIR"/*_$TIMESTAMP.* 2>/dev/null | awk '{print "  " $9 " (" $5 
 
 Test Results:
 EOF
-    
+
     # Count successful tests
     local json_files=$(ls "$OUTPUT_DIR"/*.json 2>/dev/null | wc -l)
     local error_files=$(grep -l "error" "$OUTPUT_DIR"/*.json 2>/dev/null | wc -l)
     local success_files=$((json_files - error_files))
-    
+
     echo "  Total response files: $json_files" >> "$summary_file"
     echo "  Successful responses: $success_files" >> "$summary_file"
     echo "  Error responses: $error_files" >> "$summary_file"
-    
+
     # List models tested
     echo "" >> "$summary_file"
     echo "Models Tested:" >> "$summary_file"
@@ -185,14 +185,14 @@ EOF
             echo "  - $model" >> "$summary_file"
         fi
     done
-    
+
     echo "" >> "$summary_file"
     echo "Next Steps:" >> "$summary_file"
     echo "  1. Review analysis report for provider-specific patterns" >> "$summary_file"
     echo "  2. Check code recommendations for transformation improvements" >> "$summary_file"
     echo "  3. Update transformation.py based on findings" >> "$summary_file"
     echo "  4. Run validation tests with improved transformations" >> "$summary_file"
-    
+
     log "Test summary generated: $summary_file"
 }
 
@@ -289,20 +289,20 @@ main() {
     log "GitHub Copilot Tool Call Test Runner"
     log "Output directory: $OUTPUT_DIR"
     log "API endpoint: $ENDPOINT"
-    
+
     # Check dependencies
     check_dependencies
-    
+
     # Clean output directory if requested
     if [ "$CLEAN_OUTPUT" = true ]; then
         log "Cleaning output directory..."
         rm -rf "$OUTPUT_DIR"
         mkdir -p "$OUTPUT_DIR"
     fi
-    
+
     # Create output directory
     mkdir -p "$OUTPUT_DIR"
-    
+
     # Test API connectivity unless skipped or analysis-only
     if [ "$SKIP_CONNECTIVITY" = false ] && [ "$ANALYZE_ONLY" = false ]; then
         if ! test_api_connectivity; then
@@ -310,7 +310,7 @@ main() {
             exit 1
         fi
     fi
-    
+
     # Run tests unless analysis-only
     if [ "$ANALYZE_ONLY" = false ]; then
         if ! run_tool_tests; then
@@ -318,20 +318,20 @@ main() {
             exit 1
         fi
     fi
-    
+
     # Run analysis unless test-only
     if [ "$TEST_ONLY" = false ]; then
         if ! run_analysis; then
             warning "Analysis failed, but tests completed successfully"
         fi
     fi
-    
+
     # Generate summary
     generate_summary
-    
+
     success "Test run completed successfully!"
     log "Check $OUTPUT_DIR for detailed results"
-    
+
     # Show quick results
     if [ -f "$OUTPUT_DIR/analysis_${TIMESTAMP}_report.md" ]; then
         log ""

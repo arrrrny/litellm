@@ -1,0 +1,22 @@
+[0;34m[22:00:39][0m Starting GitHub Copilot Tool Call Analysis
+[0;34m[22:00:39][0m Testing 10 models across multiple providers
+[0;34m[22:00:39][0m Output directory: ./tool_test_results
+[0;34m[22:00:39][0m ==========================================
+[0;34m[22:00:39][0m Testing model: openai_gpt4o (github_copilot/gpt-4o)
+[0;34m[22:00:39][0m Provider: openai
+[0;34m[22:00:39][0m ==========================================
+[0;34m[22:00:39][0m Testing single tool call: weather with openai_gpt4o
+[0;34m[22:00:39][0m Sending initial request...
+[0;34m[22:00:40][0m Analyzing tool calls for github_copilot/gpt-4o (openai):
+[0;34m[22:00:40][0m   Choices count: 1
+[0;34m[22:00:40][0m   Choice 0:
+[0;34m[22:00:40][0m     Role: assistant
+[0;34m[22:00:40][0m     Content: null...
+[0;34m[22:00:40][0m     Tool calls count: 1
+[0;34m[22:00:40][0m       Tool Call 0:
+[0;34m[22:00:40][0m         ID: call_jWfaZwwkUsI9clFfF6WI4ZOQ
+[0;34m[22:00:40][0m         Type: function
+[0;34m[22:00:40][0m         Function: get_weather_forecast
+[0;34m[22:00:40][0m         Arguments: {"city":"Paris"}
+[0;34m[22:00:40][0m     Finish reason: tool_calls
+[0;34m[22:00:40][0m Executing tool: get_weather_forecast with args: {"city":"Paris"}

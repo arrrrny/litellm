@@ -1,0 +1,15 @@
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"id":"call_UAmi6aKXE7cYRHQb8CLKPfrU","function":{"arguments":"","name":"get_weather_forecast"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"function":{"arguments":"{\""},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"function":{"arguments":"city"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"function":{"arguments":"\":\""},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"function":{"arguments":"Paris"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"function":{"arguments":"\"}"},"type":"function","index":0}]}}]}
+
+data: {"id":"chatcmpl-4e731fb5-6bf9-4b0c-b2ab-5da86646c2a6","created":1748113153,"model":"github_copilot/gpt-4.1","object":"chat.completion.chunk","system_fingerprint":"fp_3dfb47c1f3","choices":[{"finish_reason":"tool_calls","index":0,"delta":{}}]}
+
+data: [DONE]

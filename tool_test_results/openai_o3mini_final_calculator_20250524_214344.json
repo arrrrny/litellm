@@ -1,0 +1,58 @@
+{
+  "id": "chatcmpl-BaoA8qQTPs2zDRkRrW7yJ0P3Dtwf2",
+  "created": 1748112332,
+  "model": "github_copilot/o3-mini-2025-01-31",
+  "object": "chat.completion",
+  "system_fingerprint": "fp_ded0d14823",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "42 multiplied by 123 is 5166.",
+        "role": "assistant",
+        "tool_calls": null,
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 22,
+    "prompt_tokens": 130,
+    "total_tokens": 152,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": null,
+      "reasoning_tokens": null,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "service_tier": null,
+  "prompt_filter_results": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "prompt_index": 0
+    }
+  ]
+}
