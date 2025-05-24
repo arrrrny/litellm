@@ -1,8 +1,0 @@
-{
-  "error": {
-    "message": "litellm.APIError: APIError: Github_copilotException - Error code: 500 - {'error': 'An internal server error occurred.'}. Received Model Group=github_copilot/claude-3.5-sonnet\nAvailable Model Group Fallbacks=None",
-    "type": null,
-    "param": null,
-    "code": "500"
-  }
-}

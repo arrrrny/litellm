@@ -92,3 +92,4 @@ tests/test_custom_dir/*
 test.py
 copilot_auth*
 *prod*
+tool_test*
