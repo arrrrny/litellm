@@ -1,0 +1,30 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "message": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"content\":\"Hello World\",\"filename\":\"greeting.txt\"}",
+              "name": "write_file"
+            },
+            "id": "call_MHxsa0JuVEVySDVKZ1pMbkVmbFY",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "created": 1748078179,
+  "id": "",
+  "usage": {
+    "completion_tokens": 10,
+    "prompt_tokens": 53,
+    "total_tokens": 183
+  },
+  "model": "gemini-2.5-pro-preview-05-06"
+}

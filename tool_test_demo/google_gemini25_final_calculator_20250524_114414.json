@@ -1,0 +1,27 @@
+{
+  "id": "992eb4b2-a656-4ad0-a4d8-706b5f52a6d2",
+  "created": 1748076265,
+  "model": "github_copilot/gemini-2.5-pro-preview-05-06",
+  "object": "chat.completion",
+  "system_fingerprint": null,
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "The result of 42 * 123 is 5166.",
+        "role": "assistant",
+        "tool_calls": null,
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 18,
+    "prompt_tokens": 77,
+    "total_tokens": 95,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "service_tier": null
+}

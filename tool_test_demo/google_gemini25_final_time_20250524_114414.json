@@ -1,0 +1,27 @@
+{
+  "id": "874b492e-07cd-488b-a0cd-c5d21f75be46",
+  "created": 1748076271,
+  "model": "github_copilot/gemini-2.5-pro-preview-05-06",
+  "object": "chat.completion",
+  "system_fingerprint": null,
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "The current time in New York is May 24, 2025, 04:44:30 AM EDT.",
+        "role": "assistant",
+        "tool_calls": null,
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 30,
+    "prompt_tokens": 108,
+    "total_tokens": 138,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "service_tier": null
+}

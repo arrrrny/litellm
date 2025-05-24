@@ -1,0 +1,18 @@
+=== OPTIMIZED ANALYSIS FOR claude-3.7-sonnet - math TOOL ===
+HTTP Status: 200
+Tool Choice: {"type": "function", "function": {"name": "calculate"}}
+Request file: ./fixed_copilot_tests/claude-3.7-sonnet_math_opt_request_20250524_121425.json
+Response file: ./fixed_copilot_tests/claude-3.7-sonnet_math_opt_response_20250524_121425.json
+
+Choices count: 1
+Choice 0:
+  Role: assistant
+  Content: null...
+  Tool calls: 1
+  Finish reason: tool_calls
+    Tool Call 0:
+      ID: tooluse_lrWerWRGStipxHTRH-BlwA
+      Type: function
+      Function: calculate
+      Arguments: {"expression":"42 * 15"}
+

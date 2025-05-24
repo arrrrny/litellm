@@ -1,0 +1,31 @@
+data: {"choices":[],"created":0,"id":"","prompt_filter_results":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"prompt_index":0}]}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"","name":"write_file"},"id":"call_v2lD0g8yTFQl2Qn1L5uJuHDW","index":0,"type":"function"}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"{\""},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"content"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"\":\""},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"Hello"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":" World"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"\",\""},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"filename"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"\":\""},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"g"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"reeting"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":".txt"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"index":0,"delta":{"content":null,"tool_calls":[{"function":{"arguments":"\"}"},"index":0}]}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: {"choices":[{"finish_reason":"tool_calls","index":0,"delta":{"content":null}}],"created":1748102784,"id":"chatcmpl-Balg8GOBb8tlABfzoHZIZy93va5Ha","usage":{"completion_tokens":22,"completion_tokens_details":{"accepted_prediction_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":139,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":161},"model":"gpt-4.1-2025-04-14","system_fingerprint":"fp_3dfb47c1f3"}
+
+data: [DONE]

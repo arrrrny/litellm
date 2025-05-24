@@ -1,0 +1,83 @@
+{
+  "id": "chatcmpl-BaekycqeCxxEXQdfdAnbjsBjgJaT3",
+  "created": 1748076177,
+  "model": "github_copilot/gpt-4o-2024-11-20",
+  "object": "chat.completion",
+  "system_fingerprint": "fp_b705f0c291",
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "message": {
+        "content": null,
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"city\": \"Tokyo\"}",
+              "name": "get_weather_forecast"
+            },
+            "id": "call_HhrehgE8sWXC5l09xi9B0KPj",
+            "type": "function"
+          },
+          {
+            "function": {
+              "arguments": "{\"expression\": \"15 * 23\"}",
+              "name": "calculate"
+            },
+            "id": "call_ejLcqRlJhu9ysqCDT2WAZARR",
+            "type": "function"
+          },
+          {
+            "function": {
+              "arguments": "{\"timezone\": \"UTC\"}",
+              "name": "get_current_time"
+            },
+            "id": "call_5TYxxrtTnYCje8HvWjyXuj5J",
+            "type": "function"
+          }
+        ],
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 64,
+    "prompt_tokens": 178,
+    "total_tokens": 242,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": null,
+      "reasoning_tokens": null,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "service_tier": null,
+  "prompt_filter_results": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "prompt_index": 0
+    }
+  ]
+}

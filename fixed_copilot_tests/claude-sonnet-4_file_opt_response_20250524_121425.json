@@ -1,0 +1,31 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "message": {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"filename\":\"greeting.txt\",\"content\":\"Hello World\"}",
+              "name": "write_file"
+            },
+            "id": "toolu_vrtx_01LR9uKsptUW2FmGAoBhYArR",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "created": 1748078147,
+  "id": "msg_vrtx_014DGWhZa5xvu2TTtZNoTJTU",
+  "usage": {
+    "completion_tokens": 53,
+    "prompt_tokens": 443,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 496
+  },
+  "model": "claude-sonnet-4"
+}

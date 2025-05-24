@@ -1,0 +1,56 @@
+[2025-05-24 11:54:12] Starting GitHub Copilot model sync...
+[2025-05-24 11:54:12] Created backup: /Users/arrrrny/Developer/litellm/backups/config_20250524_115412.yaml
+[2025-05-24 11:54:12] Fetching models from GitHub Copilot API...
+[92m11:54:16 - LiteLLM:INFO[0m: fetch_copilot_models.py:223 - Starting GitHub Copilot model fetch
+INFO:LiteLLM:Starting GitHub Copilot model fetch
+DEBUG:httpcore.connection:connect_tcp.started host='api.githubcopilot.com' port=443 local_address=None timeout=5.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x10897e490>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x1088c3f50> server_hostname='api.githubcopilot.com' timeout=5.0
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x10899cd60>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Cache-Control', b'private, max-age=21600'), (b'Content-Security-Policy', b"default-src 'none'; sandbox"), (b'Content-Type', b'application/json'), (b'Strict-Transport-Security', b'max-age=31536000'), (b'Date', b'Sat, 24 May 2025 08:54:16 GMT'), (b'Transfer-Encoding', b'chunked'), (b'x-github-backend', b'Kubernetes'), (b'X-GitHub-Request-Id', b'C7F4:34F2D9:1DCAEF2:26E940F:68318938')])
+INFO:httpx:HTTP Request: GET https://api.githubcopilot.com/models "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+[92m11:54:17 - LiteLLM:INFO[0m: fetch_copilot_models.py:213 - Updated config with 11 GitHub Copilot models
+INFO:LiteLLM:Updated config with 11 GitHub Copilot models
+Fetching GitHub Copilot models...
+Found 31 models from GitHub Copilot API
+Added model: github_copilot/gpt-4o
+Added model: github_copilot/o1
+Added model: github_copilot/o3-mini
+Added model: github_copilot/claude-3.5-sonnet
+Added model: github_copilot/claude-3.7-sonnet
+Added model: github_copilot/claude-3.7-sonnet-thought
+Added model: github_copilot/claude-sonnet-4
+Added model: github_copilot/gemini-2.0-flash-001
+Added model: github_copilot/gemini-2.5-pro
+Added model: github_copilot/o4-mini
+Added model: github_copilot/gpt-4.1
+Successfully converted 11 models
+Updated /Users/arrrrny/Developer/litellm/config.yaml with 11 GitHub Copilot models
+
+Updated models:
+  github_copilot/gpt-4o: vision, function_calling (max_tokens: 128000)
+  github_copilot/o1: function_calling, structured_outputs (max_tokens: 200000)
+  github_copilot/o3-mini: function_calling, structured_outputs (max_tokens: 200000)
+  github_copilot/claude-3.5-sonnet: vision, function_calling (max_tokens: 90000)
+  github_copilot/claude-3.7-sonnet: vision, function_calling (max_tokens: 200000)
+  github_copilot/claude-3.7-sonnet-thought: vision (max_tokens: 200000)
+  github_copilot/claude-sonnet-4: function_calling (max_tokens: 80000)
+  github_copilot/gemini-2.0-flash-001: vision (max_tokens: 1000000)
+  github_copilot/gemini-2.5-pro: vision, function_calling (max_tokens: 128000)
+  github_copilot/o4-mini: vision, function_calling, structured_outputs (max_tokens: 128000)
+  github_copilot/gpt-4.1: vision, function_calling, structured_outputs (max_tokens: 128000)
+[2025-05-24 11:54:17] Successfully updated config with latest GitHub Copilot models
+[2025-05-24 11:54:18] Config validation successful
+[2025-05-24 11:54:18] Cleaned up old backups
+[2025-05-24 11:54:18] GitHub Copilot model sync completed successfully

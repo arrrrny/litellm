@@ -1,0 +1,290 @@
+model_list:
+- model_name: github_copilot/gpt-4o
+  litellm_params:
+    model: github_copilot/gpt-4o
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 128000
+      max_input_tokens: 96000
+      max_output_tokens: 4096
+      supports_vision: true
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/o1
+  litellm_params:
+    model: github_copilot/o1
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 200000
+      max_input_tokens: 150000
+      max_output_tokens: 50000
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_structured_outputs: true
+      supports_system_messages: true
+- model_name: github_copilot/o3-mini
+  litellm_params:
+    model: github_copilot/o3-mini
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 200000
+      max_input_tokens: 150000
+      max_output_tokens: 100000
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_structured_outputs: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/claude-3.5-sonnet
+  litellm_params:
+    model: github_copilot/claude-3.5-sonnet
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 90000
+      max_input_tokens: 67500
+      max_output_tokens: 8192
+      supports_vision: true
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/claude-3.7-sonnet
+  litellm_params:
+    model: github_copilot/claude-3.7-sonnet
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 200000
+      max_input_tokens: 150000
+      max_output_tokens: 16384
+      supports_vision: true
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/claude-3.7-sonnet-thought
+  litellm_params:
+    model: github_copilot/claude-3.7-sonnet-thought
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 200000
+      max_input_tokens: 150000
+      max_output_tokens: 16384
+      supports_vision: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/claude-sonnet-4
+  litellm_params:
+    model: github_copilot/claude-sonnet-4
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 80000
+      max_input_tokens: 60000
+      max_output_tokens: 16000
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/gemini-2.0-flash-001
+  litellm_params:
+    model: github_copilot/gemini-2.0-flash-001
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 1000000
+      max_input_tokens: 750000
+      max_output_tokens: 8192
+      supports_vision: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/gemini-2.5-pro
+  litellm_params:
+    model: github_copilot/gemini-2.5-pro
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 128000
+      max_input_tokens: 96000
+      max_output_tokens: 64000
+      supports_vision: true
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/o4-mini
+  litellm_params:
+    model: github_copilot/o4-mini
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 128000
+      max_input_tokens: 96000
+      max_output_tokens: 16384
+      supports_vision: true
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_structured_outputs: true
+      supports_system_messages: true
+    cache_models_for: 7200
+- model_name: github_copilot/gpt-4.1
+  litellm_params:
+    model: github_copilot/gpt-4.1
+    extra_headers:
+      Editor-Version: vscode/1.85.1
+      Editor-Plugin-Version: copilot/1.155.0
+      User-Agent: GithubCopilot/1.155.0
+      Copilot-Integration-Id: vscode-chat
+    model_info:
+      litellm_provider: github_copilot
+      mode: chat
+      input_cost_per_token: 0.0
+      output_cost_per_token: 0.0
+      max_tokens: 128000
+      max_input_tokens: 96000
+      max_output_tokens: 16384
+      supports_vision: true
+      supports_function_calling: true
+      supports_tool_calls: true
+      supports_parallel_function_calling: true
+      supports_structured_outputs: true
+      supports_system_messages: true
+    cache_models_for: 7200
+
+litellm_settings:
+  set_verbose: false
+  json_logs: true
+  success_callback: []
+  failure_callback: []
+  cache: true
+  cache_config:
+    type: redis
+    host: redis
+    port: 6379
+    password: ''
+    db: 0
+    ttl: 3600
+  drop_params: true
+  num_retries: 3
+  request_timeout: 600
+  force_timeout: 600
+  custom_pricing: true
+
+general_settings:
+  completion_model: null
+  key_management_system: null
+  use_client: false
+  database_url: postgresql://llmproxy:dbpassword9090@db:5432/litellm
+  database_connection_pool_limit: 100
+  database_connection_timeout: 60
+  store_model_in_db: true
+  proxy_batch_write_at: 10
+  disable_spend_logs: false
+  disable_master_key_return: false
+  disable_reset_budget: false
+  enforce_user_param: false
+  key_management_settings: null
+  master_key: sk-1234
+  database_type: postgresql
+  custom_auth: null
+  max_parallel_requests: null
+  inbound_webhook_url: null
+  background_health_checks: false
+  health_check_interval: 300
+  alerting: []
+  alerting_threshold: 300
+  redis_host: null
+  redis_port: null
+  redis_password: null
+  enable_pre_call_checks: false
+  disable_admin_ui_oauth: false
+  github_copilot:
+    token_dir: /root/.config/litellm/github_copilot
+    cache_models: true
+
+environment_variables:
+  LITELLM_LOG: ERROR
+  LOG_LEVEL: ERROR

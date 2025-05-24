@@ -3,15 +3,18 @@ import json
 import httpx
 
 from litellm.llms.openai.openai import OpenAIConfig
-from litellm.utils import ModelResponse, Choices, StreamingChoices
+from litellm.utils import ModelResponse
 from litellm.llms.base_llm.base_model_iterator import BaseModelResponseIterator
 from litellm.llms.base_llm.chat.transformation import BaseLLMException, LiteLLMLoggingObj
 from litellm.types.utils import (
-    ChatCompletionToolCallChunk,
     ChatCompletionUsageBlock,
     GenericStreamingChunk,
 )
-from litellm.types.llms.openai import AllMessageValues
+from litellm.types.llms.openai import (
+    AllMessageValues,
+    ChatCompletionToolCallChunk,
+    ChatCompletionToolCallFunctionChunk,
+)
 
 from ..authenticator import Authenticator
 from ..constants import GetAPIKeyError
@@ -48,6 +51,52 @@ class GithubCopilotConfig(OpenAIConfig):
         except GetAPIKeyError as e:
             raise AuthenticationError(model=model, llm_provider=custom_llm_provider, message=str(e))
         return api_base, dynamic_api_key, custom_llm_provider
+
+    def transform_request(
+        self,
+        model: str,
+        messages: List[AllMessageValues],
+        optional_params: dict,
+        litellm_params: dict,
+        headers: dict,
+    ) -> dict:
+        # Get the base request from parent class
+        messages = self._transform_messages(messages=messages, model=model)
+
+        # Ensure required GitHub Copilot parameters are included
+        copilot_required_params = {
+            "intent": True,
+            "n": 1,
+            "stream": True,
+        }
+
+        # Merge required params with optional params, giving priority to optional_params if they exist
+        final_params = {**copilot_required_params, **optional_params}
+
+        return {"model": model, "messages": messages, **final_params}
+
+    async def async_transform_request(
+        self,
+        model: str,
+        messages: List[AllMessageValues],
+        optional_params: dict,
+        litellm_params: dict,
+        headers: dict,
+    ) -> dict:
+        # Get the base request from parent class
+        messages = self._transform_messages(messages=messages, model=model)
+
+        # Ensure required GitHub Copilot parameters are included
+        copilot_required_params = {
+            "intent": True,
+            "n": 1,
+            "stream": True,
+        }
+
+        # Merge required params with optional params, giving priority to optional_params if they exist
+        final_params = {**copilot_required_params, **optional_params}
+
+        return {"model": model, "messages": messages, **final_params}
 
     def transform_response(
         self,
@@ -87,32 +136,10 @@ class GithubCopilotConfig(OpenAIConfig):
             json_mode,
         )
 
-        # Post-process for tool_calls
-        if isinstance(final_response, ModelResponse) and final_response.choices:
-            choices_list = final_response.choices
-            if len(choices_list) >= 2:
-                first_choice_obj = choices_list[0]
-                second_choice_obj = choices_list[1]
-
-                # Non-streaming
-                if all(isinstance(c, Choices) for c in choices_list):
-                    if hasattr(second_choice_obj.message, "tool_calls") and second_choice_obj.message.tool_calls:
-                        if not hasattr(first_choice_obj.message, "tool_calls") or first_choice_obj.message.tool_calls is None:
-                            setattr(first_choice_obj.message, "tool_calls", [])
-                        # Ensure first_choice_obj.message.tool_calls is a list before extending
-                        if isinstance(first_choice_obj.message.tool_calls, list):
-                            first_choice_obj.message.tool_calls.extend(second_choice_obj.message.tool_calls)
-                        final_response.choices = [first_choice_obj]
-                # Streaming
-                elif all(isinstance(c, StreamingChoices) for c in choices_list):
-                    if hasattr(second_choice_obj.delta, "tool_calls") and second_choice_obj.delta.tool_calls:
-                        if not hasattr(first_choice_obj.delta, "tool_calls") or first_choice_obj.delta.tool_calls is None:
-                            setattr(first_choice_obj.delta, "tool_calls", [])
-                        # Ensure first_choice_obj.delta.tool_calls is a list before extending
-                        if isinstance(first_choice_obj.delta.tool_calls, list):
-                            first_choice_obj.delta.tool_calls.extend(second_choice_obj.delta.tool_calls)
-                        final_response.choices = [first_choice_obj]
-
+        # No additional processing needed - all models (gpt-4.1, gemini, claude)
+        # put their tool calls in choices[0], and the streaming logic in
+        # GithubCopilotResponseIterator handles both incremental and complete
+        # tool call patterns
         return final_response
 
     def get_error_class(
@@ -129,9 +156,14 @@ class GithubCopilotConfig(OpenAIConfig):
         return GithubCopilotResponseIterator(streaming_response=streaming_response, sync_stream=sync_stream, json_mode=json_mode)
 
 class GithubCopilotResponseIterator(BaseModelResponseIterator):
+    def __init__(self, streaming_response: Union[Iterator[str], AsyncIterator[str], ModelResponse], sync_stream: bool, json_mode: Optional[bool] = False):
+        super().__init__(streaming_response=streaming_response, sync_stream=sync_stream, json_mode=json_mode)
+        self.tool_call_accumulator = {}  # Store partial tool calls by index
+
     def chunk_parser(self, chunk: dict) -> GenericStreamingChunk:
         try:
             text = ""
+            tool_use_list: Optional[List[ChatCompletionToolCallChunk]] = None
             tool_use: Optional[ChatCompletionToolCallChunk] = None
             is_finished = False
             finish_reason: Optional[str] = None
@@ -144,17 +176,30 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                 choice = chunk["choices"][0]
                 delta = choice.get("delta", {}) or {}
                 text = delta.get("content", "")
-                tool_use = delta.get("tool_calls")
-                if choice.get("finish_reason"):
-                    finish_reason = choice["finish_reason"]
-                    is_finished = True
 
-            # Special handling for tool_calls in second choice
-            if (
-                "choices" in chunk and len(chunk["choices"]) >= 2
-                and chunk["choices"][1].get("delta", {}).get("tool_calls")
-            ):
-                tool_use = chunk["choices"][1]["delta"]["tool_calls"]
+                # Handle tool calls - check for both direct and second choice
+                delta_tool_calls = delta.get("tool_calls")
+                if not delta_tool_calls and len(chunk["choices"]) >= 2:
+                    # Check second choice for tool calls (some models use this pattern)
+                    second_choice = chunk["choices"][1]
+                    second_delta = second_choice.get("delta", {}) or {}
+                    delta_tool_calls = second_delta.get("tool_calls")
+
+                if delta_tool_calls:
+                    tool_use_list = self._process_tool_calls(delta_tool_calls)
+                    if tool_use_list and len(tool_use_list) > 0:
+                        tool_use = tool_use_list[0] # GenericStreamingChunk expects a single tool call
+
+                # Check finish reason from any choice
+                for choice_item in chunk["choices"]:
+                    if choice_item.get("finish_reason"):
+                        finish_reason = choice_item["finish_reason"]
+                        is_finished = True
+                        break
+
+            # Handle usage if present
+            if "usage" in chunk:
+                usage = chunk["usage"]
 
             return GenericStreamingChunk(
                 text=text,
@@ -169,3 +214,76 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
             raise ValueError(f"Failed to decode JSON from chunk: {chunk}")
         except Exception as e:
             raise ValueError(f"Error parsing chunk: {str(e)}; chunk: {chunk}")
+
+    def _process_tool_calls(self, delta_tool_calls: List[Dict]) -> Optional[List[ChatCompletionToolCallChunk]]:
+        """Process tool calls from all models, handling:
+        - GPT-4.1: Incremental streaming (sends partial tool calls over multiple chunks)
+        - Gemini/Claude: Complete streaming (sends full tool calls in a single chunk)
+        """
+        if not delta_tool_calls:
+            return None
+
+        processed_calls = []
+        for tool_call in delta_tool_calls:
+            call_index = tool_call.get("index", 0)
+            call_id = tool_call.get("id")
+            call_type = tool_call.get("type", "function")
+
+            # For complete tool calls (Gemini/Claude), initialize accumulator and populate immediately
+            if "function" in tool_call and tool_call["function"].get("arguments") and tool_call["function"].get("name"):
+                self.tool_call_accumulator[call_index] = {
+                    "id": call_id,
+                    "type": call_type,
+                    "function": {
+                        "name": tool_call["function"]["name"],
+                        "arguments": tool_call["function"]["arguments"]
+                    }
+                }
+            # For incremental tool calls (GPT-4.1), accumulate data over multiple chunks
+            else:
+                # Initialize accumulator if needed
+                if call_index not in self.tool_call_accumulator:
+                    self.tool_call_accumulator[call_index] = {
+                        "id": call_id,
+                        "type": call_type,
+                        "function": {
+                            "name": "",
+                            "arguments": ""
+                        }
+                    }
+
+                accumulated = self.tool_call_accumulator[call_index]
+
+                # Update function data if present
+                if "function" in tool_call:
+                    func_data = tool_call["function"]
+                    if func_data.get("name"):
+                        accumulated["function"]["name"] = func_data["name"]
+                    if func_data.get("arguments"):
+                        accumulated["function"]["arguments"] += func_data["arguments"]
+
+            # Create tool call chunk from accumulated state
+            accumulated = self.tool_call_accumulator[call_index]
+
+            # Ensure function components exist for ChatCompletionToolCallFunctionChunk
+            func_name = accumulated["function"].get("name")
+            func_args = accumulated["function"].get("arguments", "") # arguments must be str
+
+            function_chunk: ChatCompletionToolCallFunctionChunk = {
+                "arguments": func_args
+            }
+            if func_name is not None: # name is Optional[str]
+                function_chunk["name"] = func_name
+
+            # Create a tool call chunk with the correct type
+            # Type for ChatCompletionToolCallChunk is Literal["function"]
+            # accumulated["type"] is derived from tool_call.get("type", "function"), so it should be "function".
+            tool_call_chunk: ChatCompletionToolCallChunk = {
+                "index": call_index,
+                "id": accumulated.get("id"), # id is Optional[str]
+                "type": "function", # Explicitly "function" as per type
+                "function": function_chunk
+            }
+            processed_calls.append(tool_call_chunk)
+
+        return processed_calls if processed_calls else None

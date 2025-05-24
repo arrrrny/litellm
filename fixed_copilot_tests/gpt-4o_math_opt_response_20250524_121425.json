@@ -1,0 +1,61 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "content_filter_results": {},
+      "message": {
+        "padding": "abcdefghijklmnopqrstuvwxy",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"expression\":\"42 * 15\"}",
+              "name": "calculate"
+            },
+            "id": "call_4HuPk0P7S1wdGLvV4rQvt4tm",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "id": "chatcmpl-BafI0YZnX22u9FTnUeNK57d9ijXdt",
+  "usage": {
+    "completion_tokens": 17,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens": 72,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 89
+  },
+  "model": "gpt-4o-2024-11-20",
+  "prompt_filter_results": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "prompt_index": 0
+    }
+  ],
+  "system_fingerprint": "fp_ee1d74bde0"
+}

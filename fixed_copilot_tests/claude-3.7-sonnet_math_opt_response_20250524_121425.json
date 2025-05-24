@@ -1,0 +1,31 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "message": {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"expression\":\"42 * 15\"}",
+              "name": "calculate"
+            },
+            "id": "tooluse_lrWerWRGStipxHTRH-BlwA",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "created": 1748078104,
+  "id": "56492b15-b699-4b02-9026-28b4de841af3",
+  "usage": {
+    "completion_tokens": 37,
+    "prompt_tokens": 413,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 450
+  },
+  "model": "Claude 3.7 Sonnet"
+}

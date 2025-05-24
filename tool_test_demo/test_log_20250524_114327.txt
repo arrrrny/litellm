@@ -1,0 +1,27 @@
+[0;34m[11:43:27][0m Starting GitHub Copilot Tool Call Analysis
+[0;34m[11:43:27][0m Testing 1 models across multiple providers
+[0;34m[11:43:27][0m Output directory: tool_test_demo
+[0;34m[11:43:27][0m ==========================================
+[0;34m[11:43:27][0m Testing model: anthropic_claude35 (github_copilot/claude-3.5-sonnet)
+[0;34m[11:43:27][0m Provider: anthropic
+[0;34m[11:43:27][0m ==========================================
+[0;34m[11:43:27][0m Testing single tool call: weather with anthropic_claude35
+[0;34m[11:43:27][0m Sending initial request...
+[0;31m[ERROR][0m API Error for anthropic_claude35: litellm.APIError: APIError: Github_copilotException - Error code: 500 - {'error': 'An internal server error occurred.'}. Received Model Group=github_copilot/claude-3.5-sonnet
+Available Model Group Fallbacks=None
+[0;34m[11:43:37][0m Testing single tool call: calculator with anthropic_claude35
+[0;34m[11:43:37][0m Sending initial request...
+[0;31m[ERROR][0m API Error for anthropic_claude35: litellm.APIError: APIError: Github_copilotException - Error code: 500 - {'error': 'An internal server error occurred.'}. Received Model Group=github_copilot/claude-3.5-sonnet
+Available Model Group Fallbacks=None
+[0;34m[11:43:47][0m Testing single tool call: time with anthropic_claude35
+[0;34m[11:43:47][0m Sending initial request...
+[0;31m[ERROR][0m API Error for anthropic_claude35: litellm.APIError: APIError: Github_copilotException - Error code: 500 - {'error': 'An internal server error occurred.'}. Received Model Group=github_copilot/claude-3.5-sonnet
+Available Model Group Fallbacks=None
+[0;34m[11:43:58][0m Testing parallel tool calls with anthropic_claude35
+[0;31m[ERROR][0m Parallel tools error for anthropic_claude35: litellm.APIError: APIError: Github_copilotException - Error code: 500 - {'error': 'An internal server error occurred.'}. Received Model Group=github_copilot/claude-3.5-sonnet
+Available Model Group Fallbacks=None
+[0;34m[11:44:10][0m Completed testing anthropic_claude35
+[0;34m[11:44:10][0m 
+[0;32m[SUCCESS][0m Generated analysis report: tool_test_demo/tool_call_analysis_20250524_114327.md
+[0;32m[SUCCESS][0m Tool call analysis completed!
+[0;34m[11:44:11][0m Check tool_test_demo for detailed results and analysis

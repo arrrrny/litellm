@@ -307,27 +307,27 @@ class Authenticator:
         device_code = device_code_info["device_code"]
         user_code = device_code_info["user_code"]
         verification_uri = device_code_info["verification_uri"]
-        
+
         if "verification_uri_complete" in device_code_info:
             print(f"\nAlternative direct URL: {device_code_info['verification_uri_complete']}\n")
 
         # Print the authentication URL and code multiple times to ensure visibility in logs
         auth_message = f"""
-        
+
         =====================================================
         GITHUB COPILOT AUTHENTICATION REQUIRED
         =====================================================
-        
+
         Please visit: {verification_uri}
-        
+
         And enter code: {user_code}
-        
+
         =====================================================
         """
-        
+
         print(auth_message)
         verbose_logger.critical(auth_message)  # Log at critical level to ensure visibility
-        
+
         # Also log to stderr for maximum visibility
         import sys
         sys.stderr.write(auth_message + "\n")
@@ -406,17 +406,30 @@ class Authenticator:
                 "mode": "chat",
                 "input_cost_per_token": 0.0,
                 "output_cost_per_token": 0.0,
-                "supports_system_messages": True,  # Most models support system messages
+                "supports_system_messages": True,  # All Copilot chat models support system messages
             }
 
             # Add token limits if available
             if "max_context_window_tokens" in limits:
-                model_info["max_tokens"] = limits["max_context_window_tokens"]
-                # Estimate input/output split if not specified
                 max_tokens = limits["max_context_window_tokens"]
-                model_info["max_input_tokens"] = int(max_tokens * 0.75)  # 75% for input
-                model_info["max_output_tokens"] = int(max_tokens * 0.25)  # 25% for output
+                model_info["max_tokens"] = max_tokens
 
+                # Handle input/output token limits based on model patterns
+                if model_id in ["gpt-4.1", "gpt-4o", "o4-mini"]:
+                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
+                    model_info["max_output_tokens"] = 16384
+                elif model_id in ["claude-3.7-sonnet", "claude-3.7-sonnet-thought"]:
+                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
+                    model_info["max_output_tokens"] = 16384
+                elif model_id == "gemini-2.0-flash-001":
+                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
+                    model_info["max_output_tokens"] = 8192
+                else:
+                    # Default split for other models
+                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
+                    model_info["max_output_tokens"] = int(max_tokens * 0.25)
+
+            # Override with explicit max_output_tokens if provided
             if "max_output_tokens" in limits:
                 model_info["max_output_tokens"] = limits["max_output_tokens"]
 
@@ -424,14 +437,17 @@ class Authenticator:
             if supports.get("vision", False):
                 model_info["supports_vision"] = True
 
-            if supports.get("tool_calls", False):
+            # Handle tool calls and function calling capabilities
+            if supports.get("tool_calls", False) or model_id in ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.5-sonnet", "claude-3.7-sonnet", "claude-sonnet-4", "gemini-2.5-pro", "gemini-2.0-flash-001"]:
                 model_info["supports_function_calling"] = True
                 model_info["supports_tool_calls"] = True
 
-            if supports.get("parallel_tool_calls", False):
+            # Parallel function calling (supported by newer models)
+            if supports.get("parallel_tool_calls", False) or model_id in ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.5-sonnet", "claude-3.7-sonnet", "claude-sonnet-4", "gemini-2.5-pro"]:
                 model_info["supports_parallel_function_calling"] = True
 
-            if supports.get("structured_outputs", False):
+            # Structured outputs
+            if supports.get("structured_outputs", False) or model_id in ["o1", "o3-mini", "o4-mini", "gpt-4.1"]:
                 model_info["supports_structured_outputs"] = True
 
             if supports.get("response_schema", False):

@@ -1,0 +1,61 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "content_filter_results": {},
+      "message": {
+        "padding": "abcdefghijklmnopqrstuvwxyz0123456789",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"content\":\"Hello World\",\"filename\":\"greeting.txt\"}",
+              "name": "write_file"
+            },
+            "id": "call_0OxKih7uDXPLUz7SJ1DxLuG4",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "id": "chatcmpl-BafI8Uv2ikacSl7d6jiHep42OAxl5",
+  "usage": {
+    "completion_tokens": 22,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens": 87,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 109
+  },
+  "model": "gpt-4o-2024-11-20",
+  "prompt_filter_results": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "prompt_index": 0
+    }
+  ],
+  "system_fingerprint": "fp_ee1d74bde0"
+}

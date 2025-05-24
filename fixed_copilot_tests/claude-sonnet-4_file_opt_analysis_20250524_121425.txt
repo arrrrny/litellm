@@ -1,0 +1,18 @@
+=== OPTIMIZED ANALYSIS FOR claude-sonnet-4 - file TOOL ===
+HTTP Status: 200
+Tool Choice: {"type": "function", "function": {"name": "write_file"}}
+Request file: ./fixed_copilot_tests/claude-sonnet-4_file_opt_request_20250524_121425.json
+Response file: ./fixed_copilot_tests/claude-sonnet-4_file_opt_response_20250524_121425.json
+
+Choices count: 1
+Choice 0:
+  Role: assistant
+  Content: null...
+  Tool calls: 1
+  Finish reason: tool_calls
+    Tool Call 0:
+      ID: toolu_vrtx_01LR9uKsptUW2FmGAoBhYArR
+      Type: function
+      Function: write_file
+      Arguments: {"filename":"greeting.txt","content":"Hello World"}
+

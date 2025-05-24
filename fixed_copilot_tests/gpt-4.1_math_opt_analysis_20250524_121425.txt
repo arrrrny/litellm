@@ -1,0 +1,7 @@
+=== OPTIMIZED ANALYSIS FOR gpt-4.1 - math TOOL ===
+HTTP Status: 422
+Tool Choice: "auto"
+Request file: ./fixed_copilot_tests/gpt-4.1_math_opt_request_20250524_121425.json
+Response file: ./fixed_copilot_tests/gpt-4.1_math_opt_response_20250524_121425.json
+
+ERROR: Unprocessable Entity

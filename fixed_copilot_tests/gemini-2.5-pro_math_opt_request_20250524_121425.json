@@ -1,0 +1,35 @@
+{
+  "model": "gemini-2.5-pro",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant. Use the provided tools when appropriate."
+    },
+    {
+      "role": "user",
+      "content": "Calculate 42 * 15"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "calculate",
+        "description": "Perform mathematical calculation",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "Mathematical expression (e.g., 42 * 15)"
+            }
+          },
+          "required": [
+            "expression"
+          ]
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"
+}

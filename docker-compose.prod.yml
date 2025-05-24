@@ -1,0 +1,91 @@
+services:
+  litellm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        target: runtime
+    volumes:
+      - ./config.prod.yaml:/app/config.yaml
+      - github_copilot_auth:/root/.config/litellm/github_copilot
+    command:
+      - "--config=/app/config.yaml"
+      - "--port=4000"
+      - "--num_workers=4"
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: "postgresql://llmproxy:dbpassword9090@db:5432/litellm"
+      STORE_MODEL_IN_DB: "True"
+      LITELLM_LOG: "ERROR"
+      LOG_LEVEL: "ERROR"
+      PYTHONUNBUFFERED: "1"
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+      # - redis
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:4000/health/liveliness || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    container_name: litellm_db_prod
+    environment:
+      POSTGRES_DB: litellm
+      POSTGRES_USER: llmproxy
+      POSTGRES_PASSWORD: dbpassword9090
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d litellm -U llmproxy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # redis:
+  #   image: redis:7-alpine
+  #   restart: unless-stopped
+  #   container_name: litellm_redis_prod
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data_prod:/data
+  #   command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+
+volumes:
+  postgres_data_prod:
+    name: litellm_postgres_data_prod
+  # redis_data_prod:
+  #   name: litellm_redis_data_prod
+  github_copilot_auth:
+    name: litellm_github_copilot_auth

@@ -1,0 +1,10 @@
+=== TOOL FLOW TEST FOR gpt-4.1 ===
+
+Step 1: Initial request with both tools
+HTTP Status: 200
+
+Response type: Streaming (SSE)
+Tool detected: calculate
+
+Total tool calls: 1
+Result: Single tool call (sequential)

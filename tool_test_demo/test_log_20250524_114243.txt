@@ -1,0 +1,91 @@
+[0;34m[11:42:43][0m Starting GitHub Copilot Tool Call Analysis
+[0;34m[11:42:43][0m Testing 1 models across multiple providers
+[0;34m[11:42:43][0m Output directory: tool_test_demo
+[0;34m[11:42:43][0m ==========================================
+[0;34m[11:42:43][0m Testing model: openai_gpt4o (github_copilot/gpt-4o)
+[0;34m[11:42:43][0m Provider: openai
+[0;34m[11:42:43][0m ==========================================
+[0;34m[11:42:43][0m Testing single tool call: weather with openai_gpt4o
+[0;34m[11:42:43][0m Sending initial request...
+[0;34m[11:42:45][0m Analyzing tool calls for github_copilot/gpt-4o (openai):
+[0;34m[11:42:45][0m   Choices count: 1
+[0;34m[11:42:45][0m   Choice 0:
+[0;34m[11:42:45][0m     Role: assistant
+[0;34m[11:42:45][0m     Content: null...
+[0;34m[11:42:45][0m     Tool calls count: 1
+[0;34m[11:42:45][0m       Tool Call 0:
+[0;34m[11:42:45][0m         ID: call_ue94KBL0cZk35ctzKHhqz4l1
+[0;34m[11:42:45][0m         Type: function
+[0;34m[11:42:45][0m         Function: get_weather_forecast
+[0;34m[11:42:45][0m         Arguments: {"city":"Paris"}
+[0;34m[11:42:45][0m     Finish reason: tool_calls
+[0;34m[11:42:45][0m Executing tool: get_weather_forecast with args: {"city":"Paris"}
+[0;34m[11:42:46][0m Sending follow-up request with tool result...
+[0;34m[11:42:46][0m Final response content: The weather in Paris, France, is currently 13°C with patchy rain nearby....
+[0;32m[SUCCESS][0m Completed tool call test for openai_gpt4o
+[0;34m[11:42:48][0m Testing single tool call: calculator with openai_gpt4o
+[0;34m[11:42:48][0m Sending initial request...
+[0;34m[11:42:49][0m Analyzing tool calls for github_copilot/gpt-4o (openai):
+[0;34m[11:42:49][0m   Choices count: 1
+[0;34m[11:42:49][0m   Choice 0:
+[0;34m[11:42:49][0m     Role: assistant
+[0;34m[11:42:49][0m     Content: null...
+[0;34m[11:42:49][0m     Tool calls count: 1
+[0;34m[11:42:49][0m       Tool Call 0:
+[0;34m[11:42:49][0m         ID: call_5kwRXyXg3aGkRUcq7Ud7r7Yt
+[0;34m[11:42:49][0m         Type: function
+[0;34m[11:42:49][0m         Function: calculate
+[0;34m[11:42:49][0m         Arguments: {"expression":"42 * 123","operation":"multiply"}
+[0;34m[11:42:49][0m     Finish reason: tool_calls
+[0;34m[11:42:49][0m Executing tool: calculate with args: {"expression":"42 * 123","operation":"multiply"}
+[0;34m[11:42:49][0m Sending follow-up request with tool result...
+[0;34m[11:42:50][0m Final response content: The result of \( 42 	imes 123 \) is 5166....
+[0;32m[SUCCESS][0m Completed tool call test for openai_gpt4o
+[0;34m[11:42:52][0m Testing single tool call: time with openai_gpt4o
+[0;34m[11:42:52][0m Sending initial request...
+[0;34m[11:42:53][0m Analyzing tool calls for github_copilot/gpt-4o (openai):
+[0;34m[11:42:53][0m   Choices count: 1
+[0;34m[11:42:53][0m   Choice 0:
+[0;34m[11:42:53][0m     Role: assistant
+[0;34m[11:42:53][0m     Content: null...
+[0;34m[11:42:53][0m     Tool calls count: 1
+[0;34m[11:42:53][0m       Tool Call 0:
+[0;34m[11:42:53][0m         ID: call_4DpyBIOhs9tsi8jh80DFZuSC
+[0;34m[11:42:53][0m         Type: function
+[0;34m[11:42:53][0m         Function: get_current_time
+[0;34m[11:42:53][0m         Arguments: {"timezone":"America/New_York"}
+[0;34m[11:42:53][0m     Finish reason: tool_calls
+[0;34m[11:42:53][0m Executing tool: get_current_time with args: {"timezone":"America/New_York"}
+[0;34m[11:42:53][0m Sending follow-up request with tool result...
+[0;34m[11:42:54][0m Final response content: The current time in New York is 4:42 AM on May 24, 2025....
+[0;32m[SUCCESS][0m Completed tool call test for openai_gpt4o
+[0;34m[11:42:56][0m Testing parallel tool calls with openai_gpt4o
+[0;34m[11:42:57][0m Analyzing tool calls for github_copilot/gpt-4o (openai):
+[0;34m[11:42:57][0m   Choices count: 1
+[0;34m[11:42:57][0m   Choice 0:
+[0;34m[11:42:57][0m     Role: assistant
+[0;34m[11:42:57][0m     Content: null...
+[0;34m[11:42:57][0m     Tool calls count: 3
+[0;34m[11:42:58][0m       Tool Call 0:
+[0;34m[11:42:58][0m         ID: call_HhrehgE8sWXC5l09xi9B0KPj
+[0;34m[11:42:58][0m         Type: function
+[0;34m[11:42:58][0m         Function: get_weather_forecast
+[0;34m[11:42:58][0m         Arguments: {"city": "Tokyo"}
+[0;34m[11:42:58][0m       Tool Call 1:
+[0;34m[11:42:58][0m         ID: call_ejLcqRlJhu9ysqCDT2WAZARR
+[0;34m[11:42:58][0m         Type: function
+[0;34m[11:42:58][0m         Function: calculate
+[0;34m[11:42:58][0m         Arguments: {"expression": "15 * 23"}
+[0;34m[11:42:58][0m       Tool Call 2:
+[0;34m[11:42:58][0m         ID: call_5TYxxrtTnYCje8HvWjyXuj5J
+[0;34m[11:42:58][0m         Type: function
+[0;34m[11:42:58][0m         Function: get_current_time
+[0;34m[11:42:58][0m         Arguments: {"timezone": "UTC"}
+[0;34m[11:42:58][0m     Finish reason: tool_calls
+[0;34m[11:42:58][0m Total tool calls found: 3
+[0;32m[SUCCESS][0m Parallel tool calls supported by openai_gpt4o
+[0;34m[11:43:01][0m Completed testing openai_gpt4o
+[0;34m[11:43:01][0m 
+[0;32m[SUCCESS][0m Generated analysis report: tool_test_demo/tool_call_analysis_20250524_114243.md
+[0;32m[SUCCESS][0m Tool call analysis completed!
+[0;34m[11:43:01][0m Check tool_test_demo for detailed results and analysis

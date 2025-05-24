@@ -1,0 +1,58 @@
+{
+  "id": "chatcmpl-BaekskOkNqAw7YzKZapn68woxGCWQ",
+  "created": 1748076170,
+  "model": "github_copilot/gpt-4o-2024-11-20",
+  "object": "chat.completion",
+  "system_fingerprint": "fp_b705f0c291",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "The result of \\( 42 \\times 123 \\) is 5166.",
+        "role": "assistant",
+        "tool_calls": null,
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 19,
+    "prompt_tokens": 127,
+    "total_tokens": 146,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": null,
+      "reasoning_tokens": null,
+      "rejected_prediction_tokens": 0
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    }
+  },
+  "service_tier": null,
+  "prompt_filter_results": [
+    {
+      "content_filter_results": {
+        "hate": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "self_harm": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "sexual": {
+          "filtered": false,
+          "severity": "safe"
+        },
+        "violence": {
+          "filtered": false,
+          "severity": "safe"
+        }
+      },
+      "prompt_index": 0
+    }
+  ]
+}

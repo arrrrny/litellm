@@ -1,0 +1,616 @@
+{
+  "timestamp": "20250524_121853",
+  "models_tested": [
+    "gpt-4.1",
+    "o4-mini"
+  ],
+  "control_model": "gpt-4o",
+  "scenarios": [
+    "minimal_no_tools",
+    "minimal_with_max_tokens",
+    "minimal_with_temperature",
+    "basic_tool_no_choice",
+    "tool_with_auto",
+    "tool_with_force",
+    "system_user_messages",
+    "with_stream_false",
+    "kitchen_sink",
+    "mimic_working_model"
+  ],
+  "results": {
+    "minimal_no_tools": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 967,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-33cabbd4-b53a-4737-9989-b0c5fcab3f71",
+          "date": "Sat, 24 May 2025 09:18:09 GMT",
+          "content-length": "967",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C88D:25EF2C:5F1E9:8A3CC:68318ED0"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": false,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-02ef3ac5-4005-4b9c-a7af-ddef75607f65",
+          "date": "Sat, 24 May 2025 09:18:09 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C88D:25EF2C:5F276:8A490:68318ED1"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-bc64325a-8a74-4b4e-9987-8131ed4d616b",
+          "date": "Sat, 24 May 2025 09:18:11 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C88D:25EF2C:5F38E:8A61D:68318ED1"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "minimal_with_max_tokens": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 955,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-7f53574c-6550-4e89-a7df-2c8de2fafa2e",
+          "date": "Sat, 24 May 2025 09:18:13 GMT",
+          "content-length": "955",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C88F:103CD3:5EF5D:8A197:68318ED4"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": false,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-bb0507fe-7cc3-4767-ba35-3d9ca1de5e32",
+          "date": "Sat, 24 May 2025 09:18:13 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C88F:103CD3:5F040:8A2D9:68318ED5"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-4ead72ff-45eb-49a1-96a9-bf6d0e170a4c",
+          "date": "Sat, 24 May 2025 09:18:15 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C88F:103CD3:5F126:8A42C:68318ED5"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "minimal_with_temperature": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 969,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-33aaa7f4-26ba-48c1-a649-eb2040bd24f7",
+          "date": "Sat, 24 May 2025 09:18:17 GMT",
+          "content-length": "969",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C892:2D0E87:5CCBD:880DB:68318ED8"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": false,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-1d39f4a8-376a-49af-9f83-e63d80324452",
+          "date": "Sat, 24 May 2025 09:18:17 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C892:2D0E87:5CE0B:882C2:68318ED9"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-ed702153-f9ea-4c76-b389-5da229887706",
+          "date": "Sat, 24 May 2025 09:18:21 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C892:2D0E87:5CF1B:88441:68318ED9"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "basic_tool_no_choice": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 875,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-b75ca868-3a6f-4352-8559-03f81f0ec57c",
+          "date": "Sat, 24 May 2025 09:18:22 GMT",
+          "content-length": "875",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C893:103CD3:5F9F9:8B176:68318EDE"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": true,
+        "finish_reason": "tool_calls"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-08957a1b-ed34-4460-bcf8-c53aac59f6fb",
+          "date": "Sat, 24 May 2025 09:18:23 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C893:103CD3:5FAA2:8B275:68318EDE"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-22a4e97e-a0a2-479c-8241-a4d003985cf8",
+          "date": "Sat, 24 May 2025 09:18:25 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C893:103CD3:5FBA4:8B3DF:68318EDF"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "tool_with_auto": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 876,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-a7ef8a35-d346-4a67-bcb6-4c9e168be9e0",
+          "date": "Sat, 24 May 2025 09:18:26 GMT",
+          "content-length": "876",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C896:2D0E87:5D8C1:89244:68318EE2"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": true,
+        "finish_reason": "tool_calls"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-daad9614-c51c-4ef7-8eca-5acd31ba9e65",
+          "date": "Sat, 24 May 2025 09:18:27 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C896:2D0E87:5D968:89329:68318EE2"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-32b0aa97-10a9-4357-b6b1-e14056de3480",
+          "date": "Sat, 24 May 2025 09:18:29 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C896:2D0E87:5DA39:8946A:68318EE3"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "tool_with_force": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 859,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-43d83aa9-bfd9-4d6a-99ec-fcfe6ea08e0a",
+          "date": "Sat, 24 May 2025 09:18:30 GMT",
+          "content-length": "859",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C897:34CC5C:5CD51:88B20:68318EE6"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": true,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-6f1b09e6-224e-46c4-9765-6ef4014d7d2f",
+          "date": "Sat, 24 May 2025 09:18:30 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C897:34CC5C:5CDCC:88BD6:68318EE6"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-0d962488-1975-404c-9c63-fc385e63e0d8",
+          "date": "Sat, 24 May 2025 09:18:34 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C897:34CC5C:5CEAB:88D12:68318EE6"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "system_user_messages": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 956,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-da324cb8-e602-44ba-868a-443d0edfca4f",
+          "date": "Sat, 24 May 2025 09:18:35 GMT",
+          "content-length": "956",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C898:3CD0F1:6A029:9635F:68318EEA"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": false,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-6028410d-ec06-4e07-81a0-cee748f6618c",
+          "date": "Sat, 24 May 2025 09:18:35 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C898:3CD0F1:6A0CB:96429:68318EEB"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-54d04404-6e2a-41dc-8f43-a71838906db5",
+          "date": "Sat, 24 May 2025 09:18:38 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C898:3CD0F1:6A1C5:96590:68318EEB"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "with_stream_false": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 939,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-6cfe2b88-2fee-4d37-81ad-330f79a360c8",
+          "date": "Sat, 24 May 2025 09:18:39 GMT",
+          "content-length": "939",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89B:25EF2C:6126E:8D498:68318EEF"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": false,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-b8cffd76-3f6b-4644-915a-255f3941c62a",
+          "date": "Sat, 24 May 2025 09:18:40 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89B:25EF2C:612EF:8D560:68318EEF"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-007cd920-2c34-4ea5-abc4-8fd13d1ae538",
+          "date": "Sat, 24 May 2025 09:18:41 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89B:25EF2C:613FC:8D6E6:68318EF0"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "kitchen_sink": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 964,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-ac142119-8d85-4907-bd14-9547b3529522",
+          "date": "Sat, 24 May 2025 09:18:43 GMT",
+          "content-length": "964",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89C:D7C3D:5F139:8B4D3:68318EF2"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": false,
+        "finish_reason": "stop"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-924fe3cf-1419-4b1a-999c-786af05805ac",
+          "date": "Sat, 24 May 2025 09:18:43 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89C:D7C3D:5F1B3:8B5A7:68318EF3"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-1436c2cc-2d03-467d-94c1-4ac0292269fd",
+          "date": "Sat, 24 May 2025 09:18:47 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89C:D7C3D:5F29C:8B6F8:68318EF3"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    },
+    "mimic_working_model": {
+      "gpt-4o": {
+        "status_code": 200,
+        "success": true,
+        "response_size": 853,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "application/json",
+          "strict-transport-security": "max-age=31536000",
+          "x-request-id": "00000-a6d5a90f-fc3e-44d9-955b-b0991ab75f19",
+          "date": "Sat, 24 May 2025 09:18:48 GMT",
+          "content-length": "853",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89F:1A98FD:6474F:90ED5:68318EF8"
+        },
+        "has_choices": true,
+        "choice_count": 1,
+        "has_tool_calls": true,
+        "finish_reason": "tool_calls"
+      },
+      "gpt-4.1": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-c60541df-35cb-4613-9312-d255744fefd0",
+          "date": "Sat, 24 May 2025 09:18:48 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89F:1A98FD:647CD:90F83:68318EF8"
+        },
+        "error_text": "Unprocessable Entity\n"
+      },
+      "o4-mini": {
+        "status_code": 422,
+        "success": false,
+        "response_size": 21,
+        "headers": {
+          "content-security-policy": "default-src 'none'; sandbox",
+          "content-type": "text/plain; charset=utf-8",
+          "strict-transport-security": "max-age=31536000",
+          "x-content-type-options": "nosniff",
+          "x-request-id": "00000-88419a27-42f5-46f8-871b-21bde8effda1",
+          "date": "Sat, 24 May 2025 09:18:53 GMT",
+          "content-length": "21",
+          "x-github-backend": "Kubernetes",
+          "x-github-request-id": "C89F:1A98FD:6488C:910CF:68318EF8"
+        },
+        "error_text": "Unprocessable Entity\n"
+      }
+    }
+  },
+  "working_scenarios": [],
+  "failed_scenarios": [
+    "minimal_no_tools",
+    "minimal_with_max_tokens",
+    "minimal_with_temperature",
+    "basic_tool_no_choice",
+    "tool_with_auto",
+    "tool_with_force",
+    "system_user_messages",
+    "with_stream_false",
+    "kitchen_sink",
+    "mimic_working_model"
+  ],
+  "error_patterns": {
+    "HTTP_422": {
+      "models": [
+        "o4-mini",
+        "gpt-4.1"
+      ],
+      "scenarios": [
+        "minimal_no_tools",
+        "minimal_no_tools",
+        "minimal_with_max_tokens",
+        "minimal_with_max_tokens",
+        "minimal_with_temperature",
+        "minimal_with_temperature",
+        "basic_tool_no_choice",
+        "basic_tool_no_choice",
+        "tool_with_auto",
+        "tool_with_auto",
+        "tool_with_force",
+        "tool_with_force",
+        "system_user_messages",
+        "system_user_messages",
+        "with_stream_false",
+        "with_stream_false",
+        "kitchen_sink",
+        "kitchen_sink",
+        "mimic_working_model",
+        "mimic_working_model"
+      ],
+      "sample_error": "Unprocessable Entity\n"
+    }
+  }
+}

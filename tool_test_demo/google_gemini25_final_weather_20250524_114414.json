@@ -1,0 +1,27 @@
+{
+  "id": "c1aa8065-9c5f-4f67-a958-549743c8dbc0",
+  "created": 1748076259,
+  "model": "github_copilot/gemini-2.5-pro-preview-05-06",
+  "object": "chat.completion",
+  "system_fingerprint": null,
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "The weather in Paris, France is 13°C and Patchy rain nearby.",
+        "role": "assistant",
+        "tool_calls": null,
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 18,
+    "prompt_tokens": 81,
+    "total_tokens": 99,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "service_tier": null
+}

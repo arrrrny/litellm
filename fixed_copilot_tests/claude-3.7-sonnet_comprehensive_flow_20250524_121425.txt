@@ -1,0 +1,12 @@
+=== COMPREHENSIVE FLOW TEST FOR claude-3.7-sonnet ===
+Math tool choice: {"type": "function", "function": {"name": "calculate"}}
+
+Step 1: Math calculation
+HTTP Status: 200
+Tool calls: 1
+
+Step 2: File writing
+File tool choice: {"type": "function", "function": {"name": "write_file"}}
+HTTP Status: 200
+Tool calls: 1
+Result: COMPLETE SUCCESS - Both tools worked

@@ -1,0 +1,14 @@
+=== ANALYSIS FOR gpt-4.1 - math TOOL ===
+HTTP Status: 200
+Request file: ./direct_copilot_tests/gpt-4.1_math_request_20250524_190606.json
+Response file: ./direct_copilot_tests/gpt-4.1_math_response_20250524_190606.json
+
+Response type: Streaming (SSE)
+Tool function detected: calculate
+Tool calls detected: 1
+  Function: calculate
+  Arguments: {"expression":"42 * 15"}
+  Parsed Arguments: {
+  "expression": "42 * 15"
+}
+Finish reason: tool_calls

@@ -1,0 +1,31 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "message": {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"expression\":\"42 * 15\"}",
+              "name": "calculate"
+            },
+            "id": "toolu_vrtx_01QtfxanoeeAsHStTpiZA5kB",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "created": 1748078138,
+  "id": "msg_vrtx_01SxqidhWDM4jiFiPdQ9nXQD",
+  "usage": {
+    "completion_tokens": 37,
+    "prompt_tokens": 414,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 451
+  },
+  "model": "claude-sonnet-4"
+}

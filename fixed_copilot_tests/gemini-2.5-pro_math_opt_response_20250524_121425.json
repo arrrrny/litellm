@@ -1,0 +1,30 @@
+{
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "message": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"expression\":\"42 * 15\"}",
+              "name": "calculate"
+            },
+            "id": "call_MHxuWFQzVzJFVFBVdjJ1UE5wME0",
+            "type": "function"
+          }
+        ]
+      }
+    }
+  ],
+  "created": 1748078168,
+  "id": "",
+  "usage": {
+    "completion_tokens": 0,
+    "prompt_tokens": 44,
+    "total_tokens": 136
+  },
+  "model": "gemini-2.5-pro-preview-05-06"
+}

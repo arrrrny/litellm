@@ -1,0 +1,18 @@
+=== OPTIMIZED ANALYSIS FOR gpt-4o - math TOOL ===
+HTTP Status: 200
+Tool Choice: "auto"
+Request file: ./fixed_copilot_tests/gpt-4o_math_opt_request_20250524_121425.json
+Response file: ./fixed_copilot_tests/gpt-4o_math_opt_response_20250524_121425.json
+
+Choices count: 1
+Choice 0:
+  Role: assistant
+  Content: null...
+  Tool calls: 1
+  Finish reason: tool_calls
+    Tool Call 0:
+      ID: call_4HuPk0P7S1wdGLvV4rQvt4tm
+      Type: function
+      Function: calculate
+      Arguments: {"expression":"42 * 15"}
+

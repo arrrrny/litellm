@@ -1,0 +1,7 @@
+=== OPTIMIZED ANALYSIS FOR o4-mini - file TOOL ===
+HTTP Status: 422
+Tool Choice: "auto"
+Request file: ./fixed_copilot_tests/o4-mini_file_opt_request_20250524_121425.json
+Response file: ./fixed_copilot_tests/o4-mini_file_opt_response_20250524_121425.json
+
+ERROR: Unprocessable Entity

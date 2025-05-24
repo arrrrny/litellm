@@ -1,0 +1,36 @@
+{
+  "id": "4372903b-2997-4a0a-89ef-a95330d2e742",
+  "created": 1748076257,
+  "model": "github_copilot/gemini-2.5-pro-preview-05-06",
+  "object": "chat.completion",
+  "system_fingerprint": null,
+  "choices": [
+    {
+      "finish_reason": "tool_calls",
+      "index": 0,
+      "message": {
+        "content": "",
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "function": {
+              "arguments": "{\"city\":\"Paris\"}",
+              "name": "get_weather_forecast"
+            },
+            "id": "call_MHxIT1hsNmVKMEZocnRGdERnN0Y",
+            "type": "function"
+          }
+        ],
+        "function_call": null
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 7,
+    "prompt_tokens": 44,
+    "total_tokens": 141,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "service_tier": null
+}
