@@ -55,7 +55,7 @@ FROM $LITELLM_RUNTIME_IMAGE AS runtime
 USER root
 
 # Install runtime dependencies
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl tzdata
 
 WORKDIR /app
 # Copy the current directory contents into the container at /app
