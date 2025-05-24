@@ -1,0 +1,58 @@
+[2025-05-24 11:04:36] Starting Docker GitHub Copilot model sync...
+[2025-05-24 11:04:36] Config file: config.yaml
+[2025-05-24 11:04:36] Token directory: /Users/arrrrny/.config/litellm/github_copilot
+[2025-05-24 11:04:36] Working directory: /Users/arrrrny/Developer/litellm
+[2025-05-24 11:04:36] Running outside Docker
+[2025-05-24 11:04:37] Created backup: ./backups/config_20250524_110437.yaml
+[2025-05-24 11:04:37] Testing GitHub Copilot authentication...
+Authentication successful
+[2025-05-24 11:04:42] Fetching models from GitHub Copilot API...
+Fetching GitHub Copilot models...
+Found 31 models from GitHub Copilot API
+Added model: github_copilot/gpt-4o
+Added model: github_copilot/o1
+Added model: github_copilot/o3-mini
+Added model: github_copilot/claude-3.5-sonnet
+Added model: github_copilot/claude-3.7-sonnet
+Added model: github_copilot/claude-3.7-sonnet-thought
+Added model: github_copilot/claude-sonnet-4
+Added model: github_copilot/gemini-2.0-flash-001
+Added model: github_copilot/gemini-2.5-pro
+Added model: github_copilot/o4-mini
+Added model: github_copilot/gpt-4.1
+Successfully converted 11 models
+Updated config.yaml with 11 GitHub Copilot models
+
+Updated models:
+  github_copilot/gpt-4o: vision, function_calling (max_tokens: 128000)
+  github_copilot/o1: function_calling, structured_outputs (max_tokens: 200000)
+  github_copilot/o3-mini: function_calling, structured_outputs (max_tokens: 200000)
+  github_copilot/claude-3.5-sonnet: vision, function_calling (max_tokens: 90000)
+  github_copilot/claude-3.7-sonnet: vision, function_calling (max_tokens: 200000)
+  github_copilot/claude-3.7-sonnet-thought: vision (max_tokens: 200000)
+  github_copilot/claude-sonnet-4: function_calling (max_tokens: 80000)
+  github_copilot/gemini-2.0-flash-001: vision (max_tokens: 1000000)
+  github_copilot/gemini-2.5-pro: vision, function_calling (max_tokens: 128000)
+  github_copilot/o4-mini: vision, function_calling, structured_outputs (max_tokens: 128000)
+  github_copilot/gpt-4.1: vision, function_calling, structured_outputs (max_tokens: 128000)
+[2025-05-24 11:04:47] Successfully updated models
+[2025-05-24 11:04:47] Config validation successful
+[2025-05-24 11:04:48] Updated config with 11 GitHub Copilot models
+[2025-05-24 11:04:48] Running health check...
+[2025-05-24 11:04:48] Health check passed: 11 models configured
+  github_copilot/gpt-4o: vision, functions (max: 128000)
+  github_copilot/o1: functions (max: 200000)
+  github_copilot/o3-mini: functions (max: 200000)
+[2025-05-24 11:04:48] Docker model sync completed successfully!
+[2025-05-24 11:04:48] Summary:
+[2025-05-24 11:04:48]   Config file: config.yaml
+[2025-05-24 11:04:48]   Backup file: ./backups/config_20250524_110437.yaml
+[2025-05-24 11:04:48]   Log file: ./logs/docker_model_sync.log
+[2025-05-24 11:04:48]   Token directory: /Users/arrrrny/.config/litellm/github_copilot
+[2025-05-24 11:04:48] 
+[2025-05-24 11:04:48] Usage in Docker:
+[2025-05-24 11:04:48]   Manual sync:    ./docker_sync_models.sh
+[2025-05-24 11:04:48]   View logs:      tail -f ./logs/docker_model_sync.log
+[2025-05-24 11:04:48]   List models:    grep 'model_name:' config.yaml
+[2025-05-24 11:04:48]   Health check:   docker exec <container> ./docker_sync_models.sh
+[2025-05-24 11:04:48] 

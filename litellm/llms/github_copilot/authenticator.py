@@ -2,7 +2,7 @@ import json
 import os
 import time
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import httpx
 
@@ -22,6 +22,7 @@ GITHUB_CLIENT_ID = "Iv1.b507a08c87ecfe98"
 GITHUB_DEVICE_CODE_URL = "https://github.com/login/device/code"
 GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_API_KEY_URL = "https://api.github.com/copilot_internal/v2/token"
+GITHUB_COPILOT_MODELS_URL = "https://api.githubcopilot.com/models"
 
 
 class Authenticator:
@@ -333,3 +334,154 @@ class Authenticator:
         sys.stderr.flush()
 
         return self._poll_for_access_token(device_code)
+
+    def fetch_available_models(self) -> List[Dict[str, Any]]:
+        """
+        Fetch available models from GitHub Copilot API.
+
+        Returns:
+            List[Dict[str, Any]]: List of available models with their capabilities.
+
+        Raises:
+            GetAPIKeyError: If unable to authenticate or fetch models.
+        """
+        try:
+            api_key = self.get_api_key()
+            headers = self._get_github_headers()
+            headers["Authorization"] = f"Bearer {api_key}"
+
+            sync_client = _get_httpx_client()
+            response = sync_client.get(GITHUB_COPILOT_MODELS_URL, headers=headers)
+            response.raise_for_status()
+
+            data = response.json()
+            if "data" in data:
+                verbose_logger.info(f"Successfully fetched {len(data['data'])} models from GitHub Copilot")
+                return data["data"]
+            else:
+                verbose_logger.warning(f"Unexpected response format from models API: {data}")
+                return []
+
+        except httpx.HTTPStatusError as e:
+            verbose_logger.error(f"HTTP error fetching models: {e}")
+            verbose_logger.error(f"Response: {e.response.text}")
+            raise GetAPIKeyError(f"Failed to fetch models: {e}")
+        except Exception as e:
+            verbose_logger.error(f"Error fetching models: {e}")
+            raise GetAPIKeyError(f"Failed to fetch models: {e}")
+
+    def convert_model_to_litellm_config(self, model: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Convert a GitHub Copilot model to LiteLLM config format.
+
+        Args:
+            model: Model information from GitHub Copilot API.
+
+        Returns:
+            Optional[Dict[str, Any]]: LiteLLM model configuration or None if model is not suitable.
+        """
+        try:
+            # Skip models that are not chat-enabled or not picker-enabled
+            if not model.get("model_picker_enabled", False):
+                verbose_logger.debug(f"Skipping model {model.get('id')} - not picker enabled")
+                return None
+
+            capabilities = model.get("capabilities", {})
+            if capabilities.get("type") != "chat":
+                verbose_logger.debug(f"Skipping model {model.get('id')} - not chat type")
+                return None
+
+            model_id = model.get("id")
+            if not model_id:
+                verbose_logger.warning("Model missing id field")
+                return None
+
+            # Extract model info from capabilities
+            supports = capabilities.get("supports", {})
+            limits = capabilities.get("limits", {})
+
+            # Build model_info with available information
+            model_info = {
+                "litellm_provider": "github_copilot",
+                "mode": "chat",
+                "input_cost_per_token": 0.0,
+                "output_cost_per_token": 0.0,
+                "supports_system_messages": True,  # Most models support system messages
+            }
+
+            # Add token limits if available
+            if "max_context_window_tokens" in limits:
+                model_info["max_tokens"] = limits["max_context_window_tokens"]
+                # Estimate input/output split if not specified
+                max_tokens = limits["max_context_window_tokens"]
+                model_info["max_input_tokens"] = int(max_tokens * 0.75)  # 75% for input
+                model_info["max_output_tokens"] = int(max_tokens * 0.25)  # 25% for output
+
+            if "max_output_tokens" in limits:
+                model_info["max_output_tokens"] = limits["max_output_tokens"]
+
+            # Add capability flags
+            if supports.get("vision", False):
+                model_info["supports_vision"] = True
+
+            if supports.get("tool_calls", False):
+                model_info["supports_function_calling"] = True
+                model_info["supports_tool_calls"] = True
+
+            if supports.get("parallel_tool_calls", False):
+                model_info["supports_parallel_function_calling"] = True
+
+            if supports.get("structured_outputs", False):
+                model_info["supports_structured_outputs"] = True
+
+            if supports.get("response_schema", False):
+                model_info["supports_response_schema"] = True
+
+            # Build the complete model config
+            model_config = {
+                "model_name": f"github_copilot/{model_id}",
+                "litellm_params": {
+                    "model": f"github_copilot/{model_id}",
+                    "extra_headers": {
+                        "Editor-Version": "vscode/1.85.1",
+                        "Editor-Plugin-Version": "copilot/1.155.0",
+                        "User-Agent": "GithubCopilot/1.155.0",
+                        "Copilot-Integration-Id": "vscode-chat"
+                    },
+                    "model_info": model_info
+                }
+            }
+
+            # Add cache_models_for for models that support caching
+            if supports.get("streaming", False):
+                model_config["litellm_params"]["cache_models_for"] = 7200
+
+            verbose_logger.debug(f"Converted model {model_id} to LiteLLM config")
+            return model_config
+
+        except Exception as e:
+            verbose_logger.error(f"Error converting model {model}: {e}")
+            return None
+
+    def get_litellm_model_configs(self) -> List[Dict[str, Any]]:
+        """
+        Get all available GitHub Copilot models in LiteLLM config format.
+
+        Returns:
+            List[Dict[str, Any]]: List of model configurations ready for LiteLLM.
+        """
+        try:
+            models = self.fetch_available_models()
+            converted_models = []
+
+            for model in models:
+                converted = self.convert_model_to_litellm_config(model)
+                if converted:
+                    converted_models.append(converted)
+
+            verbose_logger.info(f"Successfully converted {len(converted_models)} GitHub Copilot models")
+            return converted_models
+
+        except Exception as e:
+            verbose_logger.error(f"Failed to get LiteLLM model configs: {e}")
+            return []
