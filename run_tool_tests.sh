@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="${OUTPUT_DIR:-./tool_test_results}"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 API_KEY="${API_KEY:-sk-M1kLb3qpCSq52YEx9QQlrA}"
-ENDPOINT="${ENDPOINT:-http://localhost:4000/v1/chat/completions}"
+ENDPOINT="${ENDPOINT:-http://localhost:4001/v1/chat/completions}"
 
 # Colors
 RED='\033[0;31m'

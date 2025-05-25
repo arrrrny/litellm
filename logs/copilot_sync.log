@@ -54,3 +54,13 @@ Updated models:
 [2025-05-24 11:54:18] Config validation successful
 [2025-05-24 11:54:18] Cleaned up old backups
 [2025-05-24 11:54:18] GitHub Copilot model sync completed successfully
+[2025-05-25 15:29:24] Starting GitHub Copilot model sync...
+[2025-05-25 15:29:24] Created backup: /Users/ahmettok/Developer/litellm/backups/config_20250525_152924.yaml
+[2025-05-25 15:29:24] Fetching models from GitHub Copilot API...
+/usr/local/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/ahmettok/Developer/litellm/fetch_copilot_models.py': [Errno 2] No such file or directory
+[2025-05-25 15:29:24] ERROR: Failed to fetch models, restoring backup
+[2025-05-25 15:55:19] Starting GitHub Copilot model sync...
+[2025-05-25 15:55:19] Created backup: /Users/ahmettok/Developer/litellm/backups/config_20250525_155519.yaml
+[2025-05-25 15:55:19] Fetching models from GitHub Copilot API...
+/usr/local/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/ahmettok/Developer/litellm/fetch_copilot_models.py': [Errno 2] No such file or directory
+[2025-05-25 15:55:20] ERROR: Failed to fetch models, restoring backup

@@ -18,6 +18,6 @@ docker-compose -f docker-compose.prod.yml up -d
 echo ""
 echo "✅ LiteLLM Production started successfully!"
 echo ""
-echo "Access: http://localhost:4000"
+echo "Access: http://localhost:4001"
 echo "Logs:   docker-compose -f docker-compose.prod.yml logs -f"
 echo "Stop:   docker-compose -f docker-compose.prod.yml down"

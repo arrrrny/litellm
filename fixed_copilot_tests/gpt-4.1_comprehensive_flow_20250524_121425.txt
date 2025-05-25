@@ -1,6 +1,0 @@
-=== COMPREHENSIVE FLOW TEST FOR gpt-4.1 ===
-Math tool choice: "auto"
-
-Step 1: Math calculation
-HTTP Status: 422
-Result: FAILED - Math step failed with HTTP 422

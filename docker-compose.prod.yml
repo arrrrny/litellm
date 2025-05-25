@@ -13,7 +13,7 @@ services:
       - "--port=4000"
       - "--num_workers=4"
     ports:
-      - "4000:4000"
+      - "4001:4000"
     environment:
       DATABASE_URL: "postgresql://llmproxy:dbpassword9090@db:5432/litellm"
       STORE_MODEL_IN_DB: "True"
@@ -48,7 +48,7 @@ services:
       POSTGRES_USER: llmproxy
       POSTGRES_PASSWORD: dbpassword9090
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     healthcheck:
@@ -67,7 +67,7 @@ services:
     restart: unless-stopped
     container_name: litellm_redis_prod
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data_prod:/data
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru

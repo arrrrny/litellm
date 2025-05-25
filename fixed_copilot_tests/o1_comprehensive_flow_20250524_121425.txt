@@ -1,6 +1,0 @@
-=== COMPREHENSIVE FLOW TEST FOR o1 ===
-Math tool choice: "auto"
-
-Step 1: Math calculation
-HTTP Status: 429
-Result: FAILED - Math step failed with HTTP 429

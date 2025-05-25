@@ -5,8 +5,8 @@
 # to understand response structures and improve transformation robustness
 
 # CONFIGURATION
-: "${API_KEY:="sk-QtvaA69MEXsO_OOeD6Sxlw"}"
-: "${ENDPOINT:=http://localhost:4000/v1/chat/completions}"
+: "${API_KEY:="sk-vzsq8siOZaYVncRj1RJgYg"}"
+: "${ENDPOINT:=http://localhost:4001/v1/chat/completions}"
 : "${OUTPUT_DIR:=./tool_test_results}"
 : "${TIMESTAMP:=$(date +%Y%m%d_%H%M%S)}"
 

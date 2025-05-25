@@ -17,7 +17,7 @@ docker-compose -f docker-compose.prod.yml ps
 
 echo
 echo -e "${BLUE}Health Check:${NC}"
-if curl -s http://localhost:4000/ >/dev/null 2>&1; then
+if curl -s http://localhost:4001/ >/dev/null 2>&1; then
     echo -e "${GREEN}✅ API is accessible${NC}"
 else
     echo -e "${YELLOW}❌ API is not accessible${NC}"
@@ -28,20 +28,20 @@ echo -e "${BLUE}Configuration:${NC}"
 echo "  • Debug logging: DISABLED (ERROR level only)"
 echo "  • GitHub Copilot auth: PRESERVED"
 echo "  • Database: PostgreSQL (persistent)"
-echo "  • Master key: sk-1234"
+echo "  • Master key: sk-vzsq8siOZaYVncRj1RJgYg"
 echo "  • Workers: 4"
 echo "  • Restart policy: unless-stopped"
 
 echo
 echo -e "${BLUE}Available Models:${NC}"
-curl -s -H "Authorization: Bearer sk-1234" http://localhost:4000/v2/model/info 2>/dev/null | \
+curl -s -H "Authorization: Bearer sk-vzsq8siOZaYVncRj1RJgYg" http://localhost:4001/v2/model/info 2>/dev/null | \
   jq -r '.data[].model_name' 2>/dev/null || echo "  Could not fetch models (jq not installed or API not ready)"
 
 echo
 echo -e "${BLUE}Quick Test:${NC}"
-echo "curl -X POST http://localhost:4000/chat/completions \\"
+echo "curl -X POST http://localhost:4001/chat/completions \\"
 echo "     -H \"Content-Type: application/json\" \\"
-echo "     -H \"Authorization: Bearer sk-1234\" \\"
+echo "     -H \"Authorization: Bearer sk-vzsq8siOZaYVncRj1RJgYg\" \\"
 echo "     -d '{\"model\": \"github_copilot/gpt-4.1\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello!\"}]}'"
 
 echo
