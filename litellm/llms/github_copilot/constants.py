@@ -1,7 +1,6 @@
 """
 Constants for Copilot integration
 """
-import os
 
 # Copilot API endpoints
 GITHUB_COPILOT_API_BASE = "https://api.github.com/copilot/v1"
