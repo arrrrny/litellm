@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 
 from litellm._logging import verbose_logger
-from litellm.llms.custom_httpx.http_handler import _get_httpx_client
+from litellm.llms.custom_httpx.http_handler import _get_httpx_client, HTTPHandler
 
 from .constants import (
     APIKeyExpiredError,
@@ -80,7 +80,7 @@ class Authenticator:
 
     def get_api_key(self) -> str:
         """
-        Get the API key, refreshing if necessary.
+        Get the API key, refreshing if necessary with proactive refresh.
 
         Returns:
             str: The GitHub Copilot API key.
@@ -91,9 +91,21 @@ class Authenticator:
         try:
             with open(self.api_key_file, "r") as f:
                 api_key_info = json.load(f)
-                if api_key_info.get("expires_at", 0) > datetime.now().timestamp():
+                current_time = datetime.now().timestamp()
+                expires_at = api_key_info.get("expires_at", 0)
+
+                # Proactive refresh: refresh token 5 minutes before expiration to prevent timeouts
+                refresh_threshold = expires_at - 300  # 5 minutes buffer
+
+                if current_time < refresh_threshold:
+                    # Token is still valid with buffer time
                     return api_key_info.get("token")
+                elif current_time < expires_at:
+                    # Token is close to expiration, proactively refresh
+                    verbose_logger.info(f"API key expires soon (in {expires_at - current_time:.0f}s), proactively refreshing")
+                    raise APIKeyExpiredError("API key needs proactive refresh")
                 else:
+                    # Token is expired
                     verbose_logger.warning("API key expired, refreshing")
                     raise APIKeyExpiredError("API key expired")
         except IOError:
@@ -120,7 +132,7 @@ class Authenticator:
 
     def _refresh_api_key(self) -> Dict[str, Any]:
         """
-        Refresh the API key using the access token.
+        Refresh the API key using the access token with improved timeout handling.
 
         Returns:
             Dict[str, Any]: The API key information including token and expiration.
@@ -132,26 +144,56 @@ class Authenticator:
         headers = self._get_github_headers(access_token)
 
         max_retries = 3
+        base_timeout = 30.0  # Base timeout of 30 seconds
+
         for attempt in range(max_retries):
+            sync_client = None
             try:
-                sync_client = _get_httpx_client()
-                response = sync_client.get(GITHUB_API_KEY_URL, headers=headers)
+                # Increase timeout with each retry to handle slow responses
+                timeout = base_timeout * (attempt + 1)
+                # Create client with specific timeout for this attempt
+                sync_client = HTTPHandler(timeout=httpx.Timeout(timeout=timeout, connect=5.0))
+
+                verbose_logger.debug(f"Refreshing API key (attempt {attempt+1}/{max_retries}) with {timeout}s timeout")
+
+                response = sync_client.get(
+                    GITHUB_API_KEY_URL,
+                    headers=headers
+                )
                 response.raise_for_status()
 
                 response_json = response.json()
 
                 if "token" in response_json:
+                    verbose_logger.info("API key refreshed successfully")
                     return response_json
                 else:
                     verbose_logger.warning(
                         f"API key response missing token: {response_json}"
                     )
+            except httpx.TimeoutException as e:
+                verbose_logger.error(
+                    f"Timeout error refreshing API key (attempt {attempt+1}/{max_retries}): {str(e)}"
+                )
+                if attempt == max_retries - 1:
+                    raise RefreshAPIKeyError(f"API key refresh timed out after {max_retries} attempts")
             except httpx.HTTPStatusError as e:
                 verbose_logger.error(
                     f"HTTP error refreshing API key (attempt {attempt+1}/{max_retries}): {str(e)}"
                 )
+                if attempt == max_retries - 1:
+                    raise RefreshAPIKeyError(f"HTTP error during API key refresh: {str(e)}")
             except Exception as e:
                 verbose_logger.error(f"Unexpected error refreshing API key: {str(e)}")
+                if attempt == max_retries - 1:
+                    raise RefreshAPIKeyError(f"Unexpected error during API key refresh: {str(e)}")
+            finally:
+                # Clean up the client
+                if sync_client is not None:
+                    try:
+                        sync_client.close()
+                    except:
+                        pass
 
         raise RefreshAPIKeyError("Failed to refresh API key after maximum retries")
 
@@ -381,94 +423,20 @@ class Authenticator:
             Optional[Dict[str, Any]]: LiteLLM model configuration or None if model is not suitable.
         """
         try:
-            # Skip models that are not chat-enabled or not picker-enabled
-            if not model.get("model_picker_enabled", False):
-                verbose_logger.debug(f"Skipping model {model.get('id')} - not picker enabled")
+            if not self._is_valid_model(model):
                 return None
 
+            model_id = model["id"]
             capabilities = model.get("capabilities", {})
-            if capabilities.get("type") != "chat":
-                verbose_logger.debug(f"Skipping model {model.get('id')} - not chat type")
-                return None
-
-            model_id = model.get("id")
-            if not model_id:
-                verbose_logger.warning("Model missing id field")
-                return None
-
-            # Extract model info from capabilities
             supports = capabilities.get("supports", {})
             limits = capabilities.get("limits", {})
 
-            # Build model_info with available information
-            model_info = {
-                "litellm_provider": "github_copilot",
-                "mode": "chat",
-                "input_cost_per_token": 0.0,
-                "output_cost_per_token": 0.0,
-                "supports_system_messages": True,  # All Copilot chat models support system messages
-            }
+            model_info = self._build_base_model_info()
+            self._add_token_limits(model_info, limits, model_id)
+            self._add_capability_flags(model_info, supports, model_id)
 
-            # Add token limits if available
-            if "max_context_window_tokens" in limits:
-                max_tokens = limits["max_context_window_tokens"]
-                model_info["max_tokens"] = max_tokens
+            model_config = self._build_model_config(model_id, model_info)
 
-                # Handle input/output token limits based on model patterns
-                if model_id in ["gpt-4.1", "gpt-4o", "o4-mini"]:
-                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
-                    model_info["max_output_tokens"] = 16384
-                elif model_id in ["claude-3.7-sonnet", "claude-3.7-sonnet-thought"]:
-                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
-                    model_info["max_output_tokens"] = 16384
-                elif model_id == "gemini-2.0-flash-001":
-                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
-                    model_info["max_output_tokens"] = 8192
-                else:
-                    # Default split for other models
-                    model_info["max_input_tokens"] = int(max_tokens * 0.75)
-                    model_info["max_output_tokens"] = int(max_tokens * 0.25)
-
-            # Override with explicit max_output_tokens if provided
-            if "max_output_tokens" in limits:
-                model_info["max_output_tokens"] = limits["max_output_tokens"]
-
-            # Add capability flags
-            if supports.get("vision", False):
-                model_info["supports_vision"] = True
-
-            # Handle tool calls and function calling capabilities
-            if supports.get("tool_calls", False) or model_id in ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.5-sonnet", "claude-3.7-sonnet", "claude-sonnet-4", "gemini-2.5-pro", "gemini-2.0-flash-001"]:
-                model_info["supports_function_calling"] = True
-                model_info["supports_tool_calls"] = True
-
-            # Parallel function calling (supported by newer models)
-            if supports.get("parallel_tool_calls", False) or model_id in ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.5-sonnet", "claude-3.7-sonnet", "claude-sonnet-4", "gemini-2.5-pro"]:
-                model_info["supports_parallel_function_calling"] = True
-
-            # Structured outputs
-            if supports.get("structured_outputs", False) or model_id in ["o1", "o3-mini", "o4-mini", "gpt-4.1"]:
-                model_info["supports_structured_outputs"] = True
-
-            if supports.get("response_schema", False):
-                model_info["supports_response_schema"] = True
-
-            # Build the complete model config
-            model_config = {
-                "model_name": f"github_copilot/{model_id}",
-                "litellm_params": {
-                    "model": f"github_copilot/{model_id}",
-                    "extra_headers": {
-                        "Editor-Version": "vscode/1.85.1",
-                        "Editor-Plugin-Version": "copilot/1.155.0",
-                        "User-Agent": "GithubCopilot/1.155.0",
-                        "Copilot-Integration-Id": "vscode-chat"
-                    },
-                    "model_info": model_info
-                }
-            }
-
-            # Add cache_models_for for models that support caching
             if supports.get("streaming", False):
                 model_config["litellm_params"]["cache_models_for"] = 7200
 
@@ -478,6 +446,95 @@ class Authenticator:
         except Exception as e:
             verbose_logger.error(f"Error converting model {model}: {e}")
             return None
+
+    def _is_valid_model(self, model: Dict[str, Any]) -> bool:
+        """Check if model is valid for conversion."""
+        if not model.get("model_picker_enabled", False):
+            verbose_logger.debug(f"Skipping model {model.get('id')} - not picker enabled")
+            return False
+
+        capabilities = model.get("capabilities", {})
+        if capabilities.get("type") != "chat":
+            verbose_logger.debug(f"Skipping model {model.get('id')} - not chat type")
+            return False
+
+        if not model.get("id"):
+            verbose_logger.warning("Model missing id field")
+            return False
+
+        return True
+
+    def _build_base_model_info(self) -> Dict[str, Any]:
+        """Build base model info structure."""
+        return {
+            "litellm_provider": "github_copilot",
+            "mode": "chat",
+            "input_cost_per_token": 0.0,
+            "output_cost_per_token": 0.0,
+            "supports_system_messages": True,
+        }
+
+    def _add_token_limits(self, model_info: Dict[str, Any], limits: Dict[str, Any], model_id: str) -> None:
+        """Add token limits to model info."""
+        if "max_context_window_tokens" not in limits:
+            return
+
+        max_tokens = limits["max_context_window_tokens"]
+        model_info["max_tokens"] = max_tokens
+
+        # Set input/output limits based on model type
+        model_info["max_input_tokens"] = int(max_tokens * 0.75)
+
+        if model_id in ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.7-sonnet", "claude-3.7-sonnet-thought"]:
+            model_info["max_output_tokens"] = 16384
+        elif model_id == "gemini-2.0-flash-001":
+            model_info["max_output_tokens"] = 8192
+        else:
+            model_info["max_output_tokens"] = int(max_tokens * 0.25)
+
+        # Override with explicit max_output_tokens if provided
+        if "max_output_tokens" in limits:
+            model_info["max_output_tokens"] = limits["max_output_tokens"]
+
+    def _add_capability_flags(self, model_info: Dict[str, Any], supports: Dict[str, Any], model_id: str) -> None:
+        """Add capability flags to model info."""
+        if supports.get("vision", False):
+            model_info["supports_vision"] = True
+
+        # Function calling models
+        function_calling_models = ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.5-sonnet", "claude-3.7-sonnet", "claude-sonnet-4", "gemini-2.5-pro", "gemini-2.0-flash-001"]
+        if supports.get("tool_calls", False) or model_id in function_calling_models:
+            model_info["supports_function_calling"] = True
+            model_info["supports_tool_calls"] = True
+
+        # Parallel function calling models
+        parallel_models = ["gpt-4.1", "gpt-4o", "o4-mini", "claude-3.5-sonnet", "claude-3.7-sonnet", "claude-sonnet-4", "gemini-2.5-pro"]
+        if supports.get("parallel_tool_calls", False) or model_id in parallel_models:
+            model_info["supports_parallel_function_calling"] = True
+
+        # Structured outputs models
+        structured_models = ["o1", "o3-mini", "o4-mini", "gpt-4.1"]
+        if supports.get("structured_outputs", False) or model_id in structured_models:
+            model_info["supports_structured_outputs"] = True
+
+        if supports.get("response_schema", False):
+            model_info["supports_response_schema"] = True
+
+    def _build_model_config(self, model_id: str, model_info: Dict[str, Any]) -> Dict[str, Any]:
+        """Build the complete model configuration."""
+        return {
+            "model_name": f"github_copilot/{model_id}",
+            "litellm_params": {
+                "model": f"github_copilot/{model_id}",
+                "extra_headers": {
+                    "Editor-Version": "vscode/1.85.1",
+                    "Editor-Plugin-Version": "copilot/1.155.0",
+                    "User-Agent": "GithubCopilot/1.155.0",
+                    "Copilot-Integration-Id": "vscode-chat"
+                },
+                "model_info": model_info
+            }
+        }
 
     def get_litellm_model_configs(self) -> List[Dict[str, Any]]:
         """

@@ -98,9 +98,9 @@ class GithubCopilotError(BaseLLMException):
                 "timestamp": time.time(),
                 "error_category": self._categorize_error()
             }
-            
+
             verbose_logger.error(f"GitHub Copilot Error Details: {json.dumps(error_context, default=str)}")
-            
+
         except Exception as e:
             verbose_logger.error(f"Failed to log error details for {self.error_id}: {str(e)}")
 
@@ -152,10 +152,15 @@ class GithubCopilotConfig(OpenAIConfig):
         custom_llm_provider: str,
     ) -> Tuple[Optional[str], Optional[str], str]:
         api_base = "https://api.githubcopilot.com"
+
+        # Strip github_copilot/ prefix from model name early to prevent issues
+        stripped_model = self._strip_model_prefix(model)
+        verbose_logger.debug(f"GitHub Copilot provider info: original model '{model}' -> stripped model '{stripped_model}'")
+
         try:
             dynamic_api_key = self.authenticator.get_api_key()
         except GetAPIKeyError as e:
-            raise AuthenticationError(model=model, llm_provider=custom_llm_provider, message=str(e))
+            raise AuthenticationError(model=stripped_model, llm_provider=custom_llm_provider, message=str(e))
         return api_base, dynamic_api_key, custom_llm_provider
 
     def _ensure_tools(self, optional_params, messages):
@@ -178,6 +183,46 @@ class GithubCopilotConfig(OpenAIConfig):
             tools = [noop_tool]
         optional_params["tools"] = tools
         return optional_params
+
+    def _strip_model_prefix(self, model: str) -> str:
+        """
+        Strip github_copilot/ prefix from model name consistently.
+
+        Args:
+            model: The model name that may contain github_copilot/ prefix
+
+        Returns:
+            str: Model name with github_copilot/ prefix removed
+        """
+        prefixes_to_strip = ["github_copilot/", "github-copilot/", "github_copilot:", "github-copilot:"]
+
+        for prefix in prefixes_to_strip:
+            if model.startswith(prefix):
+                stripped = model[len(prefix):]
+                verbose_logger.debug(f"Stripped model prefix '{prefix}' from '{model}' -> '{stripped}'")
+                return stripped
+
+        return model
+
+    def _filter_unsupported_params(self, optional_params: dict) -> dict:
+        """
+        Filter out parameters that GitHub Copilot doesn't support.
+        """
+        # Parameters that GitHub Copilot doesn't support
+        unsupported_params = {
+            "thinking",  # GitHub Copilot doesn't support thinking parameter
+            "reasoning_effort",  # GitHub Copilot doesn't support reasoning_effort
+            "web_search_options",  # GitHub Copilot doesn't support web search
+        }
+
+        filtered_params = {}
+        for key, value in optional_params.items():
+            if key not in unsupported_params:
+                filtered_params[key] = value
+            else:
+                verbose_logger.debug(f"GitHub Copilot: Filtering out unsupported parameter '{key}'")
+
+        return filtered_params
 
     def _validate_tool_arguments(self, tool_call):
         """
@@ -260,12 +305,15 @@ class GithubCopilotConfig(OpenAIConfig):
         # Always provide tools; add dummy tool if none present, but never add more than one
         optional_params = self._ensure_tools(optional_params, messages)
 
-        # Merge required params with optional params, giving priority to optional_params if they exist
-        final_params = {**copilot_required_params, **optional_params}
+        # Filter out parameters that GitHub Copilot doesn't support
+        filtered_params = self._filter_unsupported_params(optional_params)
 
-        # Transform model name - remove github_copilot/ prefix if present
-        actual_model = model.replace("github_copilot/", "") if model.startswith("github_copilot/") else model
-        
+        # Merge required params with filtered optional params, giving priority to optional_params if they exist
+        final_params = {**copilot_required_params, **filtered_params}
+
+        # Transform model name - remove github_copilot/ prefix if present using consistent method
+        actual_model = self._strip_model_prefix(model)
+
         verbose_logger.debug(f"GitHub Copilot model transformation: {model} -> {actual_model}")
         verbose_logger.debug(f"GitHub Copilot transformed request params: {json.dumps(final_params, default=str)}")
 
@@ -299,12 +347,15 @@ class GithubCopilotConfig(OpenAIConfig):
         # Always provide tools; add dummy tool if none present, but never add more than one
         optional_params = self._ensure_tools(optional_params, messages)
 
-        # Merge required params with optional params, giving priority to optional_params if they exist
-        final_params = {**copilot_required_params, **optional_params}
+        # Filter out parameters that GitHub Copilot doesn't support
+        filtered_params = self._filter_unsupported_params(optional_params)
 
-        # Transform model name - remove github_copilot/ prefix if present
-        actual_model = model.replace("github_copilot/", "") if model.startswith("github_copilot/") else model
-        
+        # Merge required params with filtered optional params, giving priority to optional_params if they exist
+        final_params = {**copilot_required_params, **filtered_params}
+
+        # Transform model name - remove github_copilot/ prefix if present using consistent method
+        actual_model = self._strip_model_prefix(model)
+
         verbose_logger.debug(f"GitHub Copilot async model transformation: {model} -> {actual_model}")
         verbose_logger.debug(f"GitHub Copilot async transformed request params: {json.dumps(final_params, default=str)}")
 
@@ -326,7 +377,7 @@ class GithubCopilotConfig(OpenAIConfig):
     ) -> ModelResponse:
         try:
             verbose_logger.debug(f"GitHub Copilot transform_response called with status: {raw_response.status_code}")
-            
+
             # Handle API errors with enhanced logging
             if raw_response.status_code >= 400:
                 self._handle_error_response(raw_response, model)
@@ -361,11 +412,11 @@ class GithubCopilotConfig(OpenAIConfig):
                 try:
                     raw_json = raw_response.json()
                     verbose_logger.debug(f"Raw GitHub Copilot response: {json.dumps(raw_json, default=str)}")
-                    
+
                     # Create a proper ModelResponse if we got valid JSON but transform failed
                     if raw_json and isinstance(raw_json, dict):
                         from litellm.utils import ModelResponse, Choices, Message
-                        
+
                         choices = []
                         if "choices" in raw_json:
                             for choice_data in raw_json["choices"]:
@@ -381,7 +432,7 @@ class GithubCopilotConfig(OpenAIConfig):
                                     message=message
                                 )
                                 choices.append(choice)
-                        
+
                         final_response = ModelResponse(
                             id=raw_json.get("id", "github_copilot_response"),
                             choices=choices,
@@ -391,7 +442,7 @@ class GithubCopilotConfig(OpenAIConfig):
                             usage=raw_json.get("usage")
                         )
                         verbose_logger.debug("Successfully created ModelResponse from raw GitHub Copilot data")
-                        
+
                 except Exception as parse_error:
                     verbose_logger.error(f"Failed to parse raw GitHub Copilot response: {str(parse_error)}")
 
@@ -406,7 +457,7 @@ class GithubCopilotConfig(OpenAIConfig):
                 verbose_logger.debug(f"GitHub Copilot final response stats: {json.dumps(response_stats, default=str)}")
 
             return final_response
-            
+
         except GithubCopilotError:
             # Re-raise GithubCopilotError as-is
             raise
@@ -420,7 +471,7 @@ class GithubCopilotConfig(OpenAIConfig):
                 "traceback": traceback.format_exc()
             }
             verbose_logger.error(f"Unexpected error in GitHub Copilot transform_response: {json.dumps(error_details, default=str)}")
-            
+
             # Convert to GithubCopilotError for consistent error handling
             raise GithubCopilotError(
                 status_code=500,
@@ -439,13 +490,13 @@ class GithubCopilotConfig(OpenAIConfig):
             "model": model,
             "raw_response_text": raw_response.text[:1000] if hasattr(raw_response, 'text') else "No text available"
         }
-        
+
         # Add GitHub Copilot specific debugging for Bad Request errors
         if raw_response.status_code == 400:
             error_details["github_copilot_debug"] = {
                 "common_causes": [
                     "Missing required 'intent' parameter",
-                    "Missing required 'stream' parameter", 
+                    "Missing required 'stream' parameter",
                     "Invalid model name format",
                     "Missing or invalid authentication",
                     "Malformed tool calls"
@@ -457,22 +508,28 @@ class GithubCopilotConfig(OpenAIConfig):
                     "Check GitHub Copilot authentication status"
                 ]
             }
-        
+
         try:
             err = raw_response.json()
             error_obj = err.get("error", {})
             error_details["parsed_error"] = err
             msg = self._extract_error_message(error_obj, raw_response.status_code)
-            
+
             # Add specific GitHub Copilot error context for Bad Request
             if raw_response.status_code == 400:
                 msg += "\n\nGitHub Copilot Bad Request - Common causes:"
                 msg += "\n• Missing 'intent': true parameter"
-                msg += "\n• Missing 'stream': true parameter" 
+                msg += "\n• Missing 'stream': true parameter"
                 msg += "\n• Invalid model name (should be 'gpt-4.1', not 'github_copilot/gpt-4.1')"
-                msg += "\n• Authentication issues"
+                msg += "\n• Authentication issues or expired tokens"
                 msg += "\n• Malformed request structure"
-                
+            elif raw_response.status_code == 401:
+                msg += "\n\nGitHub Copilot Authentication Error - Possible causes:"
+                msg += "\n• API key expired and refresh failed"
+                msg += "\n• Invalid or missing GitHub authentication"
+                msg += "\n• Network timeout during token refresh"
+                msg += "\n• GitHub Copilot subscription not active"
+
         except json.JSONDecodeError as e:
             err = None
             msg = f"Invalid JSON response: {raw_response.text}"
@@ -484,6 +541,10 @@ class GithubCopilotConfig(OpenAIConfig):
         # Include request details in error message for debugging
         debug_info = f"\nRequest: {error_details['request_method']} {error_details['request_url']}"
         detailed_msg = f"{msg}{debug_info}"
+
+        # Add model name stripping reminder for debugging
+        if "github_copilot/" in str(error_details.get('request_url', '')):
+            detailed_msg += "\n\nNote: Ensure model names have 'github_copilot/' prefix stripped before API calls"
 
         raise GithubCopilotError(
             status_code=raw_response.status_code,
@@ -525,7 +586,7 @@ class GithubCopilotConfig(OpenAIConfig):
         try:
             # Log error creation for monitoring
             verbose_logger.debug(f"Creating GitHub Copilot error - Status: {status_code}, Message: {error_message[:200]}")
-            
+
             # First try to parse the error message as JSON if it looks like JSON
             raw_error = None
             if error_message and (error_message.startswith("{") and error_message.endswith("}")):
@@ -545,7 +606,7 @@ class GithubCopilotConfig(OpenAIConfig):
                 raw_error=raw_error,
                 response=response
             )
-            
+
         except Exception as e:
             # Fallback error creation if something goes wrong
             verbose_logger.error(f"Failed to create GitHub Copilot error class: {str(e)}")
@@ -560,12 +621,12 @@ class GithubCopilotConfig(OpenAIConfig):
         """Perform health check for GitHub Copilot integration."""
         try:
             current_time = time.time()
-            
+
             # Return cached result if recent (within 5 minutes)
             if current_time - self.last_health_check < 300 and self.health_check_cache:
                 verbose_logger.debug("Returning cached health check result")
                 return self.health_check_cache
-            
+
             health_status = {
                 "service": "github_copilot",
                 "status": "healthy",
@@ -580,14 +641,14 @@ class GithubCopilotConfig(OpenAIConfig):
                     "cache_age_seconds": current_time - self.last_health_check if self.last_health_check else 0
                 }
             }
-            
+
             # Update cache
             self.health_check_cache = health_status
             self.last_health_check = current_time
-            
+
             verbose_logger.info(f"GitHub Copilot health check completed: {json.dumps(health_status, default=str)}")
             return health_status
-            
+
         except Exception as e:
             error_status = {
                 "service": "github_copilot",
@@ -608,10 +669,10 @@ class GithubCopilotConfig(OpenAIConfig):
         try:
             if not arguments or not arguments.strip():
                 return True, None  # Empty arguments are valid
-                
+
             json.loads(arguments)
             return True, None
-            
+
         except json.JSONDecodeError as e:
             error_msg = f"Invalid JSON in tool call arguments: {str(e)}"
             verbose_logger.warning(error_msg)
@@ -680,7 +741,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                         finish_reason = choice_finish_reason
                         is_finished = True
                         verbose_logger.debug(f"GitHub Copilot finish reason: {finish_reason}")
-                        
+
                         # Handle tool_calls finish reason following ZED pattern
                         if finish_reason == "tool_calls":
                             self.last_tool_call_finish_reason = finish_reason
@@ -704,7 +765,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
             )
 
             return response_chunk
-            
+
         except json.JSONDecodeError as e:
             error_details = {
                 "error_type": "json_decode_error",
@@ -734,7 +795,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
 
     def _process_tool_calls_robust(self, delta_tool_calls: List[Dict]) -> Optional[List[ChatCompletionToolCallChunk]]:
         """Process tool calls robustly following ZED pattern with enhanced error handling.
-        
+
         This method handles:
         - GPT-4.1: Incremental streaming (sends partial tool calls over multiple chunks)
         - Gemini/Claude: Complete streaming (sends full tool calls in a single chunk)
@@ -745,7 +806,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
             return None
 
         processed_calls = []
-        
+
         try:
             for tool_call in delta_tool_calls:
                 try:
@@ -773,11 +834,11 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                     # Process function data if present
                     if "function" in tool_call and tool_call["function"]:
                         func_data = tool_call["function"]
-                        
+
                         # Update function name
                         if func_data.get("name"):
                             entry['name'] = func_data["name"]
-                        
+
                         # Accumulate arguments (following ZED pattern)
                         if func_data.get("arguments"):
                             entry['arguments'] += func_data["arguments"]
@@ -802,7 +863,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                         "type": "function",
                         "function": function_chunk
                     }
-                    
+
                     processed_calls.append(tool_call_chunk)
                     verbose_logger.debug(f"Successfully processed tool call {call_index}: {tool_call_chunk}")
 
@@ -838,20 +899,20 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
         try:
             # Enhanced validation with more comprehensive checks
             validation_errors = []
-            
+
             if not entry.get('id'):
                 validation_errors.append("missing ID")
-                
+
             if not entry.get('name'):
                 validation_errors.append("missing name (may be partial)")
                 verbose_logger.debug(f"Tool call {call_index} missing name (may be partial): {entry}")
                 return False
-                
+
             # Arguments can be empty string, but should be present
             if 'arguments' not in entry:
                 validation_errors.append("missing arguments field")
                 entry['arguments'] = ''
-            
+
             # Validate arguments are valid JSON if not empty
             if entry.get('arguments') and entry['arguments'].strip():
                 try:
@@ -859,11 +920,11 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                 except json.JSONDecodeError:
                     validation_errors.append("invalid JSON in arguments")
                     verbose_logger.warning(f"Tool call {call_index} has invalid JSON arguments: {entry['arguments'][:100]}")
-            
+
             # Log warnings for non-blocking issues
             if validation_errors:
                 verbose_logger.warning(f"Tool call {call_index} validation issues: {', '.join(validation_errors)}")
-                
+
             return True
         except Exception as e:
             verbose_logger.error(f"Error validating tool call structure for index {call_index}: {str(e)}")
@@ -874,7 +935,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
         try:
             if self.tool_calls_by_index:
                 verbose_logger.info(f"Flushing {len(self.tool_calls_by_index)} completed tool calls")
-                
+
                 # Validate and move completed tool calls to finished list
                 valid_calls = 0
                 for index, tool_call in self.tool_calls_by_index.items():
@@ -885,7 +946,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                             verbose_logger.warning(f"Tool call {index} has invalid JSON, fixing: {json_error}")
                             # Try to fix common JSON issues
                             tool_call['arguments'] = self._fix_json_arguments(tool_call.get('arguments', ''))
-                        
+
                         self.finished_tool_calls.append({
                             'index': index,
                             'tool_call': tool_call.copy(),
@@ -893,12 +954,12 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                         })
                         valid_calls += 1
                         verbose_logger.debug(f"Flushed tool call {index}: {tool_call}")
-                
+
                 verbose_logger.info(f"Successfully flushed {valid_calls}/{len(self.tool_calls_by_index)} tool calls")
-                
+
                 # Clear the accumulator for next batch
                 self.tool_calls_by_index.clear()
-                
+
         except Exception as e:
             error_details = {
                 "error_type": "tool_call_flush_error",
@@ -913,10 +974,10 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
         try:
             if not arguments or not arguments.strip():
                 return True, None
-                
+
             json.loads(arguments)
             return True, None
-            
+
         except json.JSONDecodeError as e:
             return False, str(e)
         except Exception as e:
@@ -927,21 +988,21 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
         try:
             if not arguments or not arguments.strip():
                 return "{}"
-            
+
             # Try to parse as-is first
             try:
                 json.loads(arguments)
                 return arguments
             except json.JSONDecodeError:
                 pass
-            
+
             # Common fixes
             fixed = arguments.strip()
-            
+
             # Add missing braces if it looks like object content
             if not fixed.startswith('{') and not fixed.startswith('['):
                 fixed = '{' + fixed + '}'
-            
+
             # Try parsing the fixed version
             try:
                 json.loads(fixed)
@@ -951,7 +1012,7 @@ class GithubCopilotResponseIterator(BaseModelResponseIterator):
                 # If still invalid, return empty object
                 verbose_logger.warning(f"Could not fix JSON arguments, using empty object: {arguments[:100]}")
                 return "{}"
-                
+
         except Exception as e:
             verbose_logger.error(f"Error fixing JSON arguments: {str(e)}")
             return "{}"
