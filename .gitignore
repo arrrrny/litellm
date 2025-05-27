@@ -93,3 +93,5 @@ test.py
 copilot_auth*
 *prod*
 tool_test*
+
+direct_copilot_tests/

@@ -27,27 +27,27 @@ HEADERS=(
 MODEL_KEYS=(
   "openai_gpt4o"
   "openai_gpt41"
-  "openai_o1"
-  "openai_o3mini"
-  "openai_o4mini"
+  # "openai_o1"
+  # "openai_o3mini"
+  # "openai_o4mini"
   "anthropic_claude35"
-  "anthropic_claude37"
-  "anthropic_claude4"
-  "google_gemini20"
-  "google_gemini25"
+  # "anthropic_claude37"
+  # "anthropic_claude4"
+  # "google_gemini20"
+  # "google_gemini25"
 )
 
 MODEL_VALUES=(
   "github_copilot/gpt-4o"
   "github_copilot/gpt-4.1"
-  "github_copilot/o1"
-  "github_copilot/o3-mini"
-  "github_copilot/o4-mini"
+  # "github_copilot/o1"
+  # "github_copilot/o3-mini"
+  # "github_copilot/o4-mini"
   "github_copilot/claude-3.5-sonnet"
-  "github_copilot/claude-3.7-sonnet"
-  "github_copilot/claude-sonnet-4"
-  "github_copilot/gemini-2.0-flash-001"
-  "github_copilot/gemini-2.5-pro"
+  # "github_copilot/claude-3.7-sonnet"
+  # "github_copilot/claude-sonnet-4"
+  # "github_copilot/gemini-2.0-flash-001"
+  # "github_copilot/gemini-2.5-pro"
 )
 
 # Helper function to get model value by key
