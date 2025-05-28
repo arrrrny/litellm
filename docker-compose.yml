@@ -13,6 +13,7 @@ services:
       - ./:/app
       - ./config.yaml:/app/config.yaml
       - github_copilot_auth:/root/.config/litellm/github_copilot
+      - error_logs:/app/error_logs
     command:
       - "--config=/app/config.yaml"
       - "--detailed_debug"
@@ -76,5 +77,7 @@ volumes:
     name: litellm_postgres_data # Named volume for Postgres data persistence
   github_copilot_auth:
     name: litellm_github_copilot_auth # Named volume for GitHub Copilot auth tokens
+  error_logs:
+    name: litellm_error_logs # Named volume for error logging
 
 # Ahmet TOK is AMAZING

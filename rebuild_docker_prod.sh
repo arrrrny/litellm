@@ -44,11 +44,11 @@ echo "Creating safety backup of GitHub Copilot auth data..."
 # Cleanup unused volumes & images (preserving GitHub Copilot auth)
 section "Cleaning up Docker environment"
 echo "Removing unused Docker resources while preserving GitHub Copilot auth..."
-echo "⚠️  Preserving GitHub Copilot authentication data..."
+echo "⚠️  Preserving GitHub Copilot authentication data and error logs..."
 
 # List volumes before cleanup for safety
 echo "Current volumes:"
-docker volume ls | grep -E "(github_copilot|litellm)" || echo "No LiteLLM volumes found"
+docker volume ls | grep -E "(github_copilot|litellm|error_logs)" || echo "No LiteLLM volumes found"
 
 # Clean up containers and networks, but NOT volumes
 docker container prune -f || true
@@ -60,7 +60,7 @@ echo "Removing old postgres data (will be recreated)..."
 docker volume rm litellm_postgres_data 2>/dev/null || echo "Old postgres volume not found (OK)"
 docker volume rm postgres_data 2>/dev/null || echo "Old postgres volume not found (OK)"
 
-echo "✅ GitHub Copilot auth data preserved and backed up!"
+echo "✅ GitHub Copilot auth data and error logs preserved!"
 
 # Verify auth volume still exists
 if docker volume inspect litellm_github_copilot_auth >/dev/null 2>&1; then
@@ -69,12 +69,28 @@ else
   echo "⚠️  Auth volume not found - will be restored from backup if needed"
 fi
 
+# Verify error logs volume exists (create if not)
+if docker volume inspect litellm_error_logs >/dev/null 2>&1; then
+  echo "✅ Error logs volume confirmed intact"
+else
+  echo "📁 Creating error logs volume for debugging..."
+  docker volume create litellm_error_logs
+fi
+
 # Verify source code
 section "Verifying source code structure"
 ./verify_modules.sh || {
   echo "Source code verification failed. Please fix the issues and try again."
   exit 1
 }
+
+# Copy error logging files to ensure they're included in the build
+section "Adding error logging utilities"
+echo "Copying error logging files to ensure they're included in the build..."
+cp log_copilot_error.py litellm/ || echo "Warning: log_copilot_error.py not found"
+cp fix_error_logs_permissions.sh litellm/ || echo "Warning: fix_error_logs_permissions.sh not found"
+chmod +x litellm/fix_error_logs_permissions.sh 2>/dev/null || true
+echo "✅ Error logging utilities prepared"
 
 # Rebuilding the container
 section "Rebuilding Docker container for PRODUCTION"
@@ -116,6 +132,12 @@ section "Service Status"
 echo "Here are the most recent ERROR logs (if any):"
 docker-compose -f docker-compose.prod.yml logs --tail=10 | grep -i error || echo "No error logs found - service is running cleanly!"
 
+# Set up error logging
+echo "Setting up error logging permissions..."
+docker exec $(docker-compose -f docker-compose.prod.yml ps -q litellm) mkdir -p /app/error_logs 2>/dev/null || true
+docker exec $(docker-compose -f docker-compose.prod.yml ps -q litellm) chmod -R 777 /app/error_logs 2>/dev/null || true
+docker exec $(docker-compose -f docker-compose.prod.yml ps -q litellm) bash -c "touch /app/error_logs/test_write.txt && echo 'Hello ARRRRNY.' > /app/error_logs/test_write.txt" 2>/dev/null || true
+
 section "Production Success!"
 echo "LiteLLM is now running in PRODUCTION mode with minimal logging."
 echo ""
@@ -135,3 +157,12 @@ echo "curl -X POST http://localhost:4000/chat/completions \\"
 echo "     -H \"Content-Type: application/json\" \\"
 echo "     -H \"Authorization: Bearer sk-1234\" \\"
 echo "     -d '{\"model\": \"github_copilot/gpt-4.1\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello from GitHub Copilot!\"}]}'"
+echo ""
+echo "If you encounter errors, check error logs with:"
+echo "  docker exec \$(docker-compose -f docker-compose.prod.yml ps -q litellm) python /app/log_copilot_error.py"
+echo ""
+echo "To manually log an error you've seen in the logs:"
+echo "  docker exec \$(docker-compose -f docker-compose.prod.yml ps -q litellm) python /app/log_copilot_error.py \"Your error message here\""
+echo ""
+echo "View error logs with:"
+echo "  docker exec \$(docker-compose -f docker-compose.prod.yml ps -q litellm) ls -la /app/error_logs"

@@ -19,6 +19,7 @@ import litellm.litellm_core_utils
 import litellm.types
 import litellm.types.utils
 from litellm._logging import verbose_logger
+from litellm.llms.error_logger import error_logger
 from litellm.litellm_core_utils.realtime_streaming import RealTimeStreaming
 from litellm.llms.base_llm.anthropic_messages.transformation import (
     BaseAnthropicMessagesConfig,
@@ -108,6 +109,21 @@ class BaseLLMHTTPHandler:
                     stream=stream,
                     logging_obj=logging_obj,
                 )
+
+                # Log errors for debugging when status >= 400
+                if response.status_code >= 400:
+                    try:
+                        provider = litellm_params.get("custom_llm_provider", "unknown")
+                        model = litellm_params.get("model", "unknown")
+                        error_logger.log_http_error(
+                            request=response.request,
+                            response=response,
+                            provider=provider,
+                            model=model,
+                            error_context={"retry_attempt": i + 1, "stream": stream}
+                        )
+                    except Exception as log_error:
+                        verbose_logger.error(f"Failed to log HTTP error: {log_error}")
             except httpx.HTTPStatusError as e:
                 hit_max_retry = i + 1 == max_retry_on_unprocessable_entity_error
                 should_retry = provider_config.should_retry_llm_api_inside_llm_translation_on_http_error(
@@ -168,6 +184,21 @@ class BaseLLMHTTPHandler:
                     stream=stream,
                     logging_obj=logging_obj,
                 )
+
+                # Log errors for debugging when status >= 400
+                if response.status_code >= 400:
+                    try:
+                        provider = litellm_params.get("custom_llm_provider", "unknown")
+                        model = litellm_params.get("model", "unknown")
+                        error_logger.log_http_error(
+                            request=response.request,
+                            response=response,
+                            provider=provider,
+                            model=model,
+                            error_context={"retry_attempt": i + 1, "stream": stream}
+                        )
+                    except Exception as log_error:
+                        verbose_logger.error(f"Failed to log HTTP error: {log_error}")
             except httpx.HTTPStatusError as e:
                 hit_max_retry = i + 1 == max_retry_on_unprocessable_entity_error
                 should_retry = provider_config.should_retry_llm_api_inside_llm_translation_on_http_error(

@@ -8,6 +8,7 @@ services:
     volumes:
       - ./config.prod.yaml:/app/config.yaml
       - github_copilot_auth:/root/.config/litellm/github_copilot
+      - error_logs:/app/error_logs
     command:
       - "--config=/app/config.yaml"
       - "--port=4000"
@@ -89,3 +90,5 @@ volumes:
     name: litellm_redis_data_prod
   github_copilot_auth:
     name: litellm_github_copilot_auth
+  error_logs:
+    name: litellm_error_logs
