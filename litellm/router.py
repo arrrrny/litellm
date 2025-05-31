@@ -771,6 +771,12 @@ class Router:
         self.afile_list = self.factory_function(
             litellm.afile_list, call_type="alist_files"
         )
+        self.aimage_edit = self.factory_function(
+            litellm.aimage_edit, call_type="aimage_edit"
+        )
+        self.allm_passthrough_route = self.factory_function(
+            litellm.allm_passthrough_route, call_type="allm_passthrough_route"
+        )
 
     def validate_fallbacks(self, fallback_param: Optional[List]):
         """
@@ -854,6 +860,7 @@ class Router:
                 model=model,
                 messages=messages,
                 specific_deployment=kwargs.pop("specific_deployment", None),
+                request_kwargs=kwargs,
             )
             self._update_kwargs_with_deployment(deployment=deployment, kwargs=kwargs)
 
@@ -3193,6 +3200,8 @@ class Router:
             "alist_fine_tuning_jobs",
             "aretrieve_fine_tuning_job",
             "alist_files",
+            "aimage_edit",
+            "allm_passthrough_route",
         ] = "assistants",
     ):
         """
@@ -3246,6 +3255,8 @@ class Router:
                 "alist_fine_tuning_jobs",
                 "aretrieve_fine_tuning_job",
                 "alist_files",
+                "aimage_edit",
+                "allm_passthrough_route",
             ):
                 return await self._ageneric_api_call_with_fallbacks(
                     original_function=original_function,
@@ -5464,6 +5475,26 @@ class Router:
                 elif model_name is None:
                     ids.append(id)
         return ids
+
+    def map_team_model(self, team_model_name: str, team_id: str) -> Optional[str]:
+        """
+        Map a team model name to a team-specific model name.
+
+        Returns:
+        - team_model_name: str - the team-specific model name
+        - None: if no team-specific model name is found
+        """
+        for model in self.model_list:
+            model_team_id = model["model_info"].get("team_id")
+            model_team_public_model_name = model["model_info"].get(
+                "team_public_model_name"
+            )
+            if (
+                model_team_id == team_id
+                and model_team_public_model_name == team_model_name
+            ):
+                return model["model_name"]
+        return None
 
     def _get_all_deployments(
         self, model_name: str, model_alias: Optional[str] = None

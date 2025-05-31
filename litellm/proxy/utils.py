@@ -146,14 +146,12 @@ class InternalUsageCache:
         key,
         litellm_parent_otel_span: Union[Span, None],
         local_only: bool = False,
-        redis_only: bool = False,
         **kwargs,
     ) -> Any:
         return await self.dual_cache.async_get_cache(
             key=key,
             local_only=local_only,
             parent_otel_span=litellm_parent_otel_span,
-            redis_only=redis_only,
             **kwargs,
         )
 
@@ -2800,6 +2798,8 @@ def handle_exception_on_proxy(e: Exception) -> ProxyException:
     """
     from fastapi import status
 
+    verbose_proxy_logger.exception(f"Exception: {e}")
+
     if isinstance(e, HTTPException):
         return ProxyException(
             message=getattr(e, "detail", f"error({str(e)})"),
@@ -2830,3 +2830,18 @@ def _premium_user_check():
                 "error": f"This feature is only available for LiteLLM Enterprise users. {CommonProxyErrors.not_premium_user.value}"
             },
         )
+
+
+def is_known_model(model: Optional[str], llm_router: Optional[Router]) -> bool:
+    """
+    Returns True if the model is in the llm_router model names
+    """
+    if model is None or llm_router is None:
+        return False
+    model_names = llm_router.get_model_names()
+
+    is_in_list = False
+    if model in model_names:
+        is_in_list = True
+
+    return is_in_list
