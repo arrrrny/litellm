@@ -83,6 +83,15 @@ class GithubCopilotConfig(OpenAIConfig):
                 msg = raw_response.text
                 detailed_msg = msg
 
+            # Handle 401 authentication errors immediately to prevent retry loops
+            if raw_response.status_code == 401:
+                raise AuthenticationError(
+                    model=model,
+                    llm_provider="github_copilot",
+                    message=f"GitHub Copilot authentication failed: {detailed_msg}",
+                    response=raw_response
+                )
+
             # Create error details for logging
             error_details = {
                 "request_method": raw_response.request.method if hasattr(raw_response, 'request') else "Unknown",
